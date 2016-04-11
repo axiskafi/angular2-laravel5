@@ -38,5 +38,27 @@ now in the terminal run these commands
 
 <strong>Step 6</strong>
 
-now you are ready to go
+<h2>Running the project from the local server</h2>
+
+<strong>Step 1</strong>
+By using terminal/command prompt go to the project folder
+for me its
+cd /Appliations/AMPPS/www/angular2-laravel5
+
+now type this command
+php artisan serve --port=8080
+
+<strong>stept 2</strong>
+open a new terminal and type this command
+gulp watch
+
+<strong>step 3</strong>
+now open a browser and type this
+http://localhost:8080/
+
+you will write your angular code to the resources/assets/typescript folder
+whenever you will write a new code the elixir type script will automatically compile it via gulp watch
+and you have to refresh yuour browser to see the changes.
+
+
 
