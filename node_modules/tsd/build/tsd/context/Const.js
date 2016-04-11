@@ -1,0 +1,17 @@
+'use strict';
+var Const = {
+    rc: '.tsdrc',
+    ident: 'tsd',
+    configFile: 'tsd.json',
+    typingsDir: 'typings',
+    cacheDir: 'tsd-cache',
+    bundleFile: 'tsd.d.ts',
+    settings: 'settings.json',
+    configVersion: 'v4',
+    definitelyRepo: 'borisyankov/DefinitelyTyped',
+    mainBranch: 'master',
+    statsDefault: true,
+    shaShorten: 6
+};
+Object.freeze(Const);
+module.exports = Const;

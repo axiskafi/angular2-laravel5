@@ -1,0 +1,116 @@
+{
+  "_args": [
+    [
+      "angular2@2.0.0-beta.12",
+      "/Applications/AMPPS/www/angular2-laravel5"
+    ]
+  ],
+  "_from": "angular2@2.0.0-beta.12",
+  "_id": "angular2@2.0.0-beta.12",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/angular2",
+  "_nodeVersion": "5.7.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/angular2-2.0.0-beta.12.tgz_1458778405219_0.7906582618597895"
+  },
+  "_npmUser": {
+    "email": "angular-core+npm@google.com",
+    "name": "angularcore"
+  },
+  "_npmVersion": "3.7.5",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "angular2",
+    "raw": "angular2@2.0.0-beta.12",
+    "rawSpec": "2.0.0-beta.12",
+    "scope": null,
+    "spec": "2.0.0-beta.12",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/angular2/-/angular2-2.0.0-beta.12.tgz",
+  "_shasum": "65e6a50f27bbcba00b5b16278f66a97678fc3f3f",
+  "_shrinkwrap": null,
+  "_spec": "angular2@2.0.0-beta.12",
+  "_where": "/Applications/AMPPS/www/angular2-laravel5",
+  "bugs": {
+    "url": "https://github.com/angular/angular/issues"
+  },
+  "contributors": [
+    {
+      "email": "alexeagle@google.com",
+      "name": "Alex Eagle"
+    },
+    {
+      "email": "chirayu@google.com",
+      "name": "Chirayu Krishnappa"
+    },
+    {
+      "email": "crossj@google.com",
+      "name": "Jeff Cross"
+    },
+    {
+      "email": "matsko@google.com",
+      "name": "Matias Niemela"
+    },
+    {
+      "email": "misko@google.com",
+      "name": "Misko Hevery"
+    },
+    {
+      "email": "radokirov@google.com",
+      "name": "Rado Kirov"
+    },
+    {
+      "email": "tbosch@google.com",
+      "name": "Tobias Bosch"
+    },
+    {
+      "email": "vsavkin@google.com",
+      "name": "Victor Savkin"
+    },
+    {
+      "email": "yjbanov@google.com",
+      "name": "Yegor Jbanov"
+    },
+    {
+      "email": "jelbourn@google.com",
+      "name": "Jeremy Elbourn"
+    }
+  ],
+  "dependencies": {},
+  "description": "Angular 2 - a web framework for modern web apps",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "65e6a50f27bbcba00b5b16278f66a97678fc3f3f",
+    "tarball": "https://registry.npmjs.org/angular2/-/angular2-2.0.0-beta.12.tgz"
+  },
+  "homepage": "https://github.com/angular/angular",
+  "license": "MIT",
+  "maintainers": [
+    {
+      "email": "angular-core+npm@google.com",
+      "name": "angularcore"
+    }
+  ],
+  "name": "angular2",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "es6-shim": "^0.35.0",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.2",
+    "zone.js": "^0.6.6"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.git"
+  },
+  "scripts": {},
+  "version": "2.0.0-beta.12"
+}

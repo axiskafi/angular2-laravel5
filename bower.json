@@ -1,0 +1,24 @@
+{
+  "name": "angular2-laravel5",
+  "authors": [
+    "axiskafi <axis.kafi@test.com>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.2",
+    "jquery-ui": "^1.11.4",
+    "moment": "^2.9.0",
+    "eonasdan-bootstrap-datetimepicker": "~4.17.37",
+    "font-awesome": "^4.5",
+    "c3": "~0.4.11-rc4",
+    "d3": "~3.5.0",
+    "tether": "^1.2.0"
+  }
+}
