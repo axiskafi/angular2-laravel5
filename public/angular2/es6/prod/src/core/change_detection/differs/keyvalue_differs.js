@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { isBlank, isPresent, CONST } from 'angular2/src/facade/lang';
 import { BaseException } from 'angular2/src/facade/exceptions';
 import { ListWrapper } from 'angular2/src/facade/collection';
-import { Provider, SkipSelfMetadata, OptionalMetadata, Injectable } from 'angular2/src/core/di';
+import { Provider, SkipSelfMetadata, OptionalMetadata } from 'angular2/src/core/di';
 /**
  * A repository of different Map diffing strategies used by NgClass, NgStyle, and others.
  */
@@ -73,7 +73,6 @@ export let KeyValueDiffers = class {
     }
 };
 KeyValueDiffers = __decorate([
-    Injectable(),
     CONST(), 
     __metadata('design:paramtypes', [Array])
 ], KeyValueDiffers);

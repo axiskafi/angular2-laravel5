@@ -21,7 +21,10 @@ var _global = globalScope;
 export { _global as global };
 export var Type = Function;
 export function getTypeNameForDebugging(type) {
-    return type['name'];
+    if (type['name']) {
+        return type['name'];
+    }
+    return typeof type;
 }
 export var Math = _global.Math;
 export var Date = _global.Date;
@@ -251,6 +254,21 @@ export class RegExpWrapper {
         // last time.
         regExp.lastIndex = 0;
         return { re: regExp, input: input };
+    }
+    static replaceAll(regExp, input, replace) {
+        let c = regExp.exec(input);
+        let res = '';
+        regExp.lastIndex = 0;
+        let prev = 0;
+        while (c) {
+            res += input.substring(prev, c.index);
+            res += replace(c);
+            prev = c.index + c[0].length;
+            regExp.lastIndex = prev;
+            c = regExp.exec(input);
+        }
+        res += input.substring(prev);
+        return res;
     }
 }
 export class RegExpMatcherWrapper {

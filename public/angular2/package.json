@@ -1,41 +1,41 @@
 {
   "_args": [
     [
-      "angular2@2.0.0-beta.12",
+      "angular2@2.0.0-beta.14",
       "/Applications/AMPPS/www/angular2-laravel5"
     ]
   ],
-  "_from": "angular2@2.0.0-beta.12",
-  "_id": "angular2@2.0.0-beta.12",
+  "_from": "angular2@2.0.0-beta.14",
+  "_id": "angular2@2.0.0-beta.14",
   "_inCache": true,
   "_installable": true,
   "_location": "/angular2",
-  "_nodeVersion": "5.7.0",
+  "_nodeVersion": "5.5.0",
   "_npmOperationalInternal": {
     "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/angular2-2.0.0-beta.12.tgz_1458778405219_0.7906582618597895"
+    "tmp": "tmp/angular2-2.0.0-beta.14.tgz_1460049930698_0.5656932985875756"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
     "name": "angularcore"
   },
-  "_npmVersion": "3.7.5",
+  "_npmVersion": "3.6.0",
   "_phantomChildren": {},
   "_requested": {
     "name": "angular2",
-    "raw": "angular2@2.0.0-beta.12",
-    "rawSpec": "2.0.0-beta.12",
+    "raw": "angular2@2.0.0-beta.14",
+    "rawSpec": "2.0.0-beta.14",
     "scope": null,
-    "spec": "2.0.0-beta.12",
+    "spec": "2.0.0-beta.14",
     "type": "version"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/angular2/-/angular2-2.0.0-beta.12.tgz",
-  "_shasum": "65e6a50f27bbcba00b5b16278f66a97678fc3f3f",
+  "_resolved": "https://registry.npmjs.org/angular2/-/angular2-2.0.0-beta.14.tgz",
+  "_shasum": "86d3e195ec1e5069168c14bc60a7dcab56b7dfdf",
   "_shrinkwrap": null,
-  "_spec": "angular2@2.0.0-beta.12",
+  "_spec": "angular2@2.0.0-beta.14",
   "_where": "/Applications/AMPPS/www/angular2-laravel5",
   "bugs": {
     "url": "https://github.com/angular/angular/issues"
@@ -87,8 +87,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "65e6a50f27bbcba00b5b16278f66a97678fc3f3f",
-    "tarball": "https://registry.npmjs.org/angular2/-/angular2-2.0.0-beta.12.tgz"
+    "shasum": "86d3e195ec1e5069168c14bc60a7dcab56b7dfdf",
+    "tarball": "https://registry.npmjs.org/angular2/-/angular2-2.0.0-beta.14.tgz"
   },
   "homepage": "https://github.com/angular/angular",
   "license": "MIT",
@@ -112,5 +112,5 @@
     "url": "git+https://github.com/angular/angular.git"
   },
   "scripts": {},
-  "version": "2.0.0-beta.12"
+  "version": "2.0.0-beta.14"
 }

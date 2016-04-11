@@ -262,6 +262,11 @@ export class ListWrapper {
         return solution;
     }
     static isImmutable(list) { return Object.isSealed(list); }
+    static flatten(array) {
+        let res = [];
+        array.forEach((a) => res = res.concat(a));
+        return res;
+    }
 }
 export function isListLikeIterable(obj) {
     if (!isJsObject(obj))

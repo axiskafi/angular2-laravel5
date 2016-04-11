@@ -5,7 +5,7 @@ import 'dart:math' as math;
 import 'dart:convert' as convert;
 import 'dart:async' show Future, Zone;
 
-String getTypeNameForDebugging(Type type) => type.toString();
+String getTypeNameForDebugging(Object type) => type.toString();
 
 class Math {
   static final _random = new math.Random();
@@ -214,6 +214,20 @@ class RegExpWrapper {
 
   static Iterator<Match> matcher(RegExp regExp, String input) {
     return regExp.allMatches(input).iterator;
+  }
+
+  static String replaceAll(RegExp regExp, String input, Function replace) {
+    final m = RegExpWrapper.matcher(regExp, input);
+    var res = "";
+    var prev = 0;
+    while(m.moveNext()) {
+      var c = m.current;
+      res += input.substring(prev, c.start);
+      res += replace(c);
+      prev = c.start + c[0].length;
+    }
+    res += input.substring(prev);
+    return res;
   }
 }
 

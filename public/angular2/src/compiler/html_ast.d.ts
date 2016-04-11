@@ -21,7 +21,9 @@ export declare class HtmlElementAst implements HtmlAst {
     attrs: HtmlAttrAst[];
     children: HtmlAst[];
     sourceSpan: ParseSourceSpan;
-    constructor(name: string, attrs: HtmlAttrAst[], children: HtmlAst[], sourceSpan: ParseSourceSpan);
+    startSourceSpan: ParseSourceSpan;
+    endSourceSpan: ParseSourceSpan;
+    constructor(name: string, attrs: HtmlAttrAst[], children: HtmlAst[], sourceSpan: ParseSourceSpan, startSourceSpan: ParseSourceSpan, endSourceSpan: ParseSourceSpan);
     visit(visitor: HtmlAstVisitor, context: any): any;
 }
 export declare class HtmlCommentAst implements HtmlAst {

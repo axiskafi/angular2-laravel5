@@ -516,6 +516,11 @@ System.register("angular2/src/router/url_parser", ["angular2/src/facade/collecti
     var match = lang_1.RegExpWrapper.firstMatch(SEGMENT_RE, str);
     return lang_1.isPresent(match) ? match[0] : '';
   }
+  var QUERY_PARAM_VALUE_RE = lang_1.RegExpWrapper.create('^[^\\(\\)\\?;&#]+');
+  function matchUrlQueryParamValue(str) {
+    var match = lang_1.RegExpWrapper.firstMatch(QUERY_PARAM_VALUE_RE, str);
+    return lang_1.isPresent(match) ? match[0] : '';
+  }
   var UrlParser = (function() {
     function UrlParser() {}
     UrlParser.prototype.peekStartsWith = function(str) {
@@ -585,10 +590,10 @@ System.register("angular2/src/router/url_parser", ["angular2/src/facade/collecti
     UrlParser.prototype.parseQueryParams = function() {
       var params = {};
       this.capture('?');
-      this.parseParam(params);
+      this.parseQueryParam(params);
       while (this._remaining.length > 0 && this.peekStartsWith('&')) {
         this.capture('&');
-        this.parseParam(params);
+        this.parseQueryParam(params);
       }
       return params;
     };
@@ -610,6 +615,23 @@ System.register("angular2/src/router/url_parser", ["angular2/src/facade/collecti
       if (this.peekStartsWith('=')) {
         this.capture('=');
         var valueMatch = matchUrlSegment(this._remaining);
+        if (lang_1.isPresent(valueMatch)) {
+          value = valueMatch;
+          this.capture(value);
+        }
+      }
+      params[key] = value;
+    };
+    UrlParser.prototype.parseQueryParam = function(params) {
+      var key = matchUrlSegment(this._remaining);
+      if (lang_1.isBlank(key)) {
+        return ;
+      }
+      this.capture(key);
+      var value = true;
+      if (this.peekStartsWith('=')) {
+        this.capture('=');
+        var valueMatch = matchUrlQueryParamValue(this._remaining);
         if (lang_1.isPresent(valueMatch)) {
           value = valueMatch;
           this.capture(value);
@@ -1686,7 +1708,7 @@ System.register("angular2/src/router/rules/route_paths/param_route_path", ["angu
       if (!collection_1.StringMapWrapper.contains(params.map, this.name)) {
         throw new exceptions_1.BaseException("Route generator for '" + this.name + "' was not included in parameters passed.");
       }
-      return utils_1.normalizeString(params.get(this.name));
+      return encodeDynamicSegment(utils_1.normalizeString(params.get(this.name)));
     };
     DynamicPathSegment.paramMatcher = /^:([^\/]+)$/g;
     return DynamicPathSegment;
@@ -1737,7 +1759,7 @@ System.register("angular2/src/router/rules/route_paths/param_route_path", ["angu
           }
           captured.push(currentUrlSegment.path);
           if (pathSegment instanceof DynamicPathSegment) {
-            positionalParams[pathSegment.name] = currentUrlSegment.path;
+            positionalParams[pathSegment.name] = decodeDynamicSegment(currentUrlSegment.path);
           } else if (!pathSegment.match(currentUrlSegment.path)) {
             return null;
           }
@@ -1842,6 +1864,38 @@ System.register("angular2/src/router/rules/route_paths/param_route_path", ["angu
     return ParamRoutePath;
   })();
   exports.ParamRoutePath = ParamRoutePath;
+  var REGEXP_PERCENT = /%/g;
+  var REGEXP_SLASH = /\//g;
+  var REGEXP_OPEN_PARENT = /\(/g;
+  var REGEXP_CLOSE_PARENT = /\)/g;
+  var REGEXP_SEMICOLON = /;/g;
+  function encodeDynamicSegment(value) {
+    if (lang_1.isBlank(value)) {
+      return null;
+    }
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_PERCENT, '%25');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_SLASH, '%2F');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_OPEN_PARENT, '%28');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_CLOSE_PARENT, '%29');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_SEMICOLON, '%3B');
+    return value;
+  }
+  var REGEXP_ENC_SEMICOLON = /%3B/ig;
+  var REGEXP_ENC_CLOSE_PARENT = /%29/ig;
+  var REGEXP_ENC_OPEN_PARENT = /%28/ig;
+  var REGEXP_ENC_SLASH = /%2F/ig;
+  var REGEXP_ENC_PERCENT = /%25/ig;
+  function decodeDynamicSegment(value) {
+    if (lang_1.isBlank(value)) {
+      return null;
+    }
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_ENC_SEMICOLON, ';');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_ENC_CLOSE_PARENT, ')');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_ENC_OPEN_PARENT, '(');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_ENC_SLASH, '/');
+    value = lang_1.StringWrapper.replaceAll(value, REGEXP_ENC_PERCENT, '%');
+    return value;
+  }
   global.define = __define;
   return module.exports;
 });

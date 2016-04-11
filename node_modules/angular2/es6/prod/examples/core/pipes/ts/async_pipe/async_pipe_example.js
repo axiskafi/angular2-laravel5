@@ -47,7 +47,7 @@ AsyncPipeExample = __decorate([
 let Task = class {
     constructor() {
         this.time = new Observable((observer) => {
-            setInterval(_ => observer.next(new Date().getTime()), 500);
+            setInterval(() => observer.next(new Date().getTime()), 500);
         });
     }
 };

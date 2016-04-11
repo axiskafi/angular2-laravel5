@@ -13,14 +13,21 @@ import { ComponentMetadata } from '../metadata/directives';
 import { stringify, isBlank, isPresent } from 'angular2/src/facade/lang';
 import { BaseException } from 'angular2/src/facade/exceptions';
 import { Map } from 'angular2/src/facade/collection';
+import { ReflectorReader } from 'angular2/src/core/reflection/reflector_reader';
 import { reflector } from 'angular2/src/core/reflection/reflection';
 /**
  * Resolves types to {@link ViewMetadata}.
  */
 export let ViewResolver = class {
-    constructor() {
+    constructor(_reflector) {
         /** @internal */
         this._cache = new Map();
+        if (isPresent(_reflector)) {
+            this._reflector = _reflector;
+        }
+        else {
+            this._reflector = reflector;
+        }
     }
     resolve(component) {
         var view = this._cache.get(component);
@@ -34,7 +41,7 @@ export let ViewResolver = class {
     _resolve(component) {
         var compMeta;
         var viewMeta;
-        reflector.annotations(component).forEach(m => {
+        this._reflector.annotations(component).forEach(m => {
             if (m instanceof ViewMetadata) {
                 viewMeta = m;
             }
@@ -99,5 +106,5 @@ export let ViewResolver = class {
 };
 ViewResolver = __decorate([
     Injectable(), 
-    __metadata('design:paramtypes', [])
+    __metadata('design:paramtypes', [ReflectorReader])
 ], ViewResolver);

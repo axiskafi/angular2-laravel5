@@ -114,6 +114,7 @@ export declare class RegExpWrapper {
         re: RegExp;
         input: string;
     };
+    static replaceAll(regExp: RegExp, input: string, replace: Function): string;
 }
 export declare class RegExpMatcherWrapper {
     static next(matcher: {

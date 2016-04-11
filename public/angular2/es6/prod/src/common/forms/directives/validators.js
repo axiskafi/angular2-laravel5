@@ -14,7 +14,8 @@ import { forwardRef, Provider, Attribute, Directive } from 'angular2/core';
 import { CONST_EXPR } from 'angular2/src/facade/lang';
 import { Validators, NG_VALIDATORS } from '../validators';
 import { NumberWrapper } from "angular2/src/facade/lang";
-const REQUIRED_VALIDATOR = CONST_EXPR(new Provider(NG_VALIDATORS, { useValue: Validators.required, multi: true }));
+const REQUIRED = Validators.required;
+const REQUIRED_VALIDATOR = CONST_EXPR(new Provider(NG_VALIDATORS, { useValue: REQUIRED, multi: true }));
 /**
  * A Directive that adds the `required` validator to any controls marked with the
  * `required` attribute, via the {@link NG_VALIDATORS} binding.

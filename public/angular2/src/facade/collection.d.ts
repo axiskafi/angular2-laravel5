@@ -92,6 +92,7 @@ export declare class ListWrapper {
     static toJSON<T>(l: T[]): string;
     static maximum<T>(list: T[], predicate: (t: T) => number): T;
     static isImmutable(list: any[]): boolean;
+    static flatten<T>(array: T[][]): T[];
 }
 export declare function isListLikeIterable(obj: any): boolean;
 export declare function areIterablesEqual(a: any, b: any, comparator: Function): boolean;
