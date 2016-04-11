@@ -56,10 +56,7 @@ elixir(function (mix) {
 
 
     mix.typescript(
-        [
-            'app.component.ts',
-            'boot.ts'
-        ],
+        '/**/*.ts',
         'public/js',
         {
             "target": "es5",
