@@ -23,17 +23,14 @@ var paths = {
 elixir(function (mix) {
 
     mix.copy('node_modules/@angular', 'public/@angular');
-
-
-    mix.copy('node_modules/es6-promise', 'public/es6-promise');
-    mix.copy('node_modules/es6-shim', 'public/es6-shim');
     mix.copy('node_modules/rxjs', 'public/rxjs');
     mix.copy('node_modules/systemjs', 'public/systemjs');
-    
+    mix.copy('node_modules/es6-promise', 'public/es6-promise');
+    mix.copy('node_modules/es6-shim', 'public/es6-shim');
     mix.copy('node_modules/zone.js', 'public/zone.js');
-    
+    mix.copy('node_modules/satellizer', 'public/satellizer');
+    mix.copy('node_modules/platform', 'public/platform');
     mix.copy('node_modules/reflect-metadata', 'public/reflect-metadata');
-
 
     mix.copy('resources/assets/vendors/jquery-ui/themes/base/images', 'public/images');
 
