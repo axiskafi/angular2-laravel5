@@ -1,4 +1,4 @@
-# angular2-laravel5
+# Angular 2.0.0-rc.1-laravel5
 Angular 2 setup with Laravel 5
 
 <strong>Step1</strong>
