@@ -1,7 +1,4 @@
-/// <reference path="../../../public/@angular/common/index.d.ts" />
-/// <reference path="../../../public/@angular/compiler/index.d.ts" />
-/// <reference path="../../../public/@angular/core/index.d.ts" />
-/// <reference path="../../../public/@angular/platform-browser-dynamic/index.d.ts" />
+/// <reference path="../../../typings/browser.d.ts" />
 System.register(['@angular/platform-browser-dynamic', "./app.component"], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
