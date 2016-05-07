@@ -144,22 +144,24 @@ function parseDependency(raw) {
     throw new TypeError("Unknown dependency: " + raw);
 }
 exports.parseDependency = parseDependency;
-function resolveDependency(raw, path) {
+function resolveDependency(raw, filename) {
     var _a = parseDependency(raw), type = _a.type, meta = _a.meta, location = _a.location;
+    if (type === 'http' || type === 'https') {
+        return url_1.resolve(location, filename);
+    }
     if (type === 'github' || type === 'bitbucket') {
         var org = meta.org, repo = meta.repo, sha = meta.sha;
-        var resolvedPath = path_2.normalizeSlashes(path_1.join(path_1.dirname(meta.path), path));
-        return type + ":" + org + "/" + repo + "/" + resolvedPath + (sha === 'master' ? '' : '#' + sha);
+        var path = path_1.join(path_1.dirname(meta.path), filename);
+        return buildDependencyExpression(type, { org: org, repo: repo, sha: sha, path: path });
     }
     if (type === 'npm' || type === 'bower') {
-        var resolvedPath = path_2.normalizeSlashes(path_1.join(path_1.dirname(meta.path), path));
-        return type + ":" + meta.name + "/" + resolvedPath;
-    }
-    if (type === 'http' || type === 'https') {
-        return url_1.resolve(location, path);
+        var name = meta.name;
+        var path = path_1.join(path_1.dirname(meta.path), filename);
+        return buildDependencyExpression(type, { name: name, path: path });
     }
     if (type === 'file') {
-        return "file:" + path_2.normalizeSlashes(path_1.join(location, path));
+        var path = path_1.join(location, filename);
+        return buildDependencyExpression(type, { path: path });
     }
     throw new TypeError("Unable to resolve dependency from \"" + raw + "\"");
 }
@@ -173,8 +175,24 @@ function parseDependencyExpression(raw, options) {
     };
 }
 exports.parseDependencyExpression = parseDependencyExpression;
+function buildDependencyExpression(type, meta) {
+    if (type === 'github' || type === 'bitbucket') {
+        var org = meta.org, repo = meta.repo, sha = meta.sha;
+        var resolvedPath = path_2.normalizeSlashes(meta.path);
+        return type + ":" + org + "/" + repo + "/" + resolvedPath + (sha === 'master' ? '' : '#' + sha);
+    }
+    if (type === 'npm' || type === 'bower') {
+        var path = meta.path;
+        var resolvedPath = path ? "/" + path_2.normalizeSlashes(path) : '';
+        return type + ":" + meta.name + resolvedPath;
+    }
+    if (type === 'file') {
+        return "file:" + path_2.normalizeSlashes(meta.path);
+    }
+    throw new TypeError("Unable to expand dependency type: \"" + type + "\"");
+}
+exports.buildDependencyExpression = buildDependencyExpression;
 function expandRegistry(raw, options) {
-    if (options === void 0) { options = {}; }
     if (typeof raw !== 'string') {
         throw new TypeError("Expected registry name to be a string, not " + typeof raw);
     }

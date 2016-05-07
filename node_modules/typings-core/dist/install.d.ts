@@ -1,6 +1,7 @@
 import Promise = require('any-promise');
-import { CompiledOutput } from './lib/compile';
+import { parseDependencyExpression, buildDependencyExpression } from './utils/parse';
 import { DependencyTree, Emitter } from './interfaces';
+export { parseDependencyExpression, buildDependencyExpression };
 export interface InstallDependencyOptions {
     save?: boolean;
     saveDev?: boolean;
@@ -14,12 +15,16 @@ export interface InstallOptions {
     production?: boolean;
     emitter?: Emitter;
 }
-export declare function install(options: InstallOptions): Promise<{
+export interface InstallResult {
     tree: DependencyTree;
-}>;
-export declare function installDependencyRaw(raw: string, options: InstallDependencyOptions): Promise<CompiledOutput>;
+    name?: string;
+}
+export declare function install(options: InstallOptions): Promise<InstallResult>;
 export interface InstallExpression {
     name: string;
     location: string;
 }
-export declare function installDependency(expression: InstallExpression, options: InstallDependencyOptions): Promise<CompiledOutput>;
+export declare function installDependencyRaw(raw: string, options: InstallDependencyOptions): Promise<InstallResult>;
+export declare function installDependenciesRaw(raw: string[], options: InstallDependencyOptions): Promise<InstallResult[]>;
+export declare function installDependency(expression: InstallExpression, options: InstallDependencyOptions): Promise<InstallResult>;
+export declare function installDependencies(expressions: InstallExpression[], options: InstallDependencyOptions): Promise<InstallResult[]>;

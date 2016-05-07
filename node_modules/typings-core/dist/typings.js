@@ -10,5 +10,6 @@ __export(require('./search'));
 __export(require('./list'));
 __export(require('./open'));
 __export(require('./view'));
+__export(require('./prune'));
 exports.VERSION = require('../package.json').version;
 //# sourceMappingURL=typings.js.map

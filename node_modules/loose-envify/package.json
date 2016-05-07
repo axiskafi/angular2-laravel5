@@ -52,7 +52,7 @@
   "directories": {},
   "dist": {
     "shasum": "527582d62cff4e04da3f9976c7110d3392ec7e0c",
-    "tarball": "http://registry.npmjs.org/loose-envify/-/loose-envify-1.1.0.tgz"
+    "tarball": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.1.0.tgz"
   },
   "gitHead": "f536f4fdbde317d77827ac8655c6c8473928b9e1",
   "homepage": "https://github.com/zertosh/loose-envify",

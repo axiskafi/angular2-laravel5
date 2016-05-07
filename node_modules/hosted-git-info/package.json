@@ -50,7 +50,7 @@
   "directories": {},
   "dist": {
     "shasum": "d9e953b26988be88096c46e926494d9604c300f8",
-    "tarball": "http://registry.npmjs.org/hosted-git-info/-/hosted-git-info-2.1.4.tgz"
+    "tarball": "https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-2.1.4.tgz"
   },
   "gitHead": "9e1a36df8eb050a663713c79e56d89dadba2bd8d",
   "homepage": "https://github.com/npm/hosted-git-info",

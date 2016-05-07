@@ -67,7 +67,7 @@
   "directories": {},
   "dist": {
     "shasum": "3d0c63180f458eb10d325aaa37d7c58ae312e9d7",
-    "tarball": "http://registry.npmjs.org/mime-db/-/mime-db-1.12.0.tgz"
+    "tarball": "https://registry.npmjs.org/mime-db/-/mime-db-1.12.0.tgz"
   },
   "engines": {
     "node": ">= 0.6"

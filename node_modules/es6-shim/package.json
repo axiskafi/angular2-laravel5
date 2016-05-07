@@ -30,7 +30,8 @@
     "type": "range"
   },
   "_requiredBy": [
-    "/"
+    "/",
+    "/angular2-in-memory-web-api"
   ],
   "_resolved": "https://registry.npmjs.org/es6-shim/-/es6-shim-0.35.0.tgz",
   "_shasum": "272d927950889eabe299927cdc9c0010b7bfc00a",

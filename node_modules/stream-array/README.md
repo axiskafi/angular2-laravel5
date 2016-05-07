@@ -7,6 +7,7 @@ other streams.
 [![build status][3]][4]
 [![dependencies][5]][6]
 [![devDependencies][7]][8]
+[![Inch CI][16]][17]
 
 [//]: [![testling][9]][10]
 
@@ -71,6 +72,8 @@ npm install stream-array
   [13]: http://nodejs.org/api/globals.html#globals_require
   [14]: https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
   [15]: https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options
+  [16]: https://inch-ci.org/github/mimetnet/node-stream-array.svg?branch=master
+  [17]: http://inch-ci.org/github/mimetnet/node-stream-array
 
 ## License
 

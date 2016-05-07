@@ -31,8 +31,8 @@ module.exports = function (opts) {
                 file.contents = new Buffer(result.css);
                 this.push(file);
                 cb();
-            }.bind(this),
-            function (error) {
+            }.bind(this))
+            .catch(function (error) {
                   var errorOptions = {fileName: file.path};
                   if (error.name === 'CssSyntaxError') {
                      error = error.message + error.showSourceCode();

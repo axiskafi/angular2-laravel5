@@ -7,4 +7,5 @@ export * from './interfaces';
 export * from './list';
 export * from './open';
 export * from './view';
+export * from './prune';
 export declare const VERSION: any;

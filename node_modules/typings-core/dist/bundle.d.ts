@@ -1,6 +1,6 @@
 import Promise = require('any-promise');
-import { CompiledOutput } from './lib/compile';
 import { Emitter } from './interfaces';
+import { InstallResult } from './install';
 export interface BundleOptions {
     name?: string;
     cwd: string;
@@ -8,4 +8,4 @@ export interface BundleOptions {
     out: string;
     emitter?: Emitter;
 }
-export declare function bundle(options: BundleOptions): Promise<CompiledOutput>;
+export declare function bundle(options: BundleOptions): Promise<InstallResult>;

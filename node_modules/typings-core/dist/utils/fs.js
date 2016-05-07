@@ -38,6 +38,43 @@ exports.unlink = throat(10, thenify(fs.unlink));
 exports.lock = throat(10, thenify(lockfile.lock));
 exports.unlock = throat(10, thenify(lockfile.unlock));
 exports.rimraf = throat(10, thenify(Rimraf));
+exports.readdir = throat(10, thenify(fs.readdir));
+exports.rmdir = throat(10, thenify(fs.rmdir));
+function mkdirpAndWriteFile(path, contents) {
+    return exports.mkdirp(path_1.dirname(path)).then(function () { return exports.writeFile(path, contents); });
+}
+exports.mkdirpAndWriteFile = mkdirpAndWriteFile;
+function rmUntil(path, options) {
+    return isFile(path)
+        .then(function (exists) {
+        if (exists) {
+            return exports.unlink(path);
+        }
+        options.emitter.emit('enoent', { path: path });
+    })
+        .then(function () { return rmdirUntil(path_1.dirname(path), options); });
+}
+exports.rmUntil = rmUntil;
+function rmdirUntil(path, options) {
+    if (path === options.cwd) {
+        return Promise.resolve();
+    }
+    return exports.readdir(path)
+        .then(function (files) {
+        if (files.length) {
+            return;
+        }
+        return exports.rmdir(path)
+            .then(function () { return rmdirUntil(path_1.dirname(path), options); });
+    })
+        .catch(function (err) {
+        if (err.code === 'ENOENT') {
+            return;
+        }
+        return Promise.reject(err);
+    });
+}
+exports.rmdirUntil = rmdirUntil;
 function isFile(path) {
     return exports.stat(path).then(function (stat) { return stat.isFile(); }, function () { return false; });
 }
@@ -94,16 +131,16 @@ exports.readHttp = throat(5, function readHttp(url) {
         .use(function (self) {
         var hostname = self.Url.hostname;
         if (self.Url.host === registryURL.host) {
-            if (store_1.default.get('clientId')) {
-                self.before(function (req) {
+            self.before(function (req) {
+                if (store_1.default.get('clientId')) {
                     req.set('Typings-Client-Id', store_1.default.get('clientId'));
-                });
-            }
-            else {
-                self.after(function (res) {
+                }
+            });
+            self.after(function (res) {
+                if (res.get('Typings-Client-Id')) {
                     store_1.default.set('clientId', res.get('Typings-Client-Id'));
-                });
-            }
+                }
+            });
         }
         if (rc_1.default.githubToken && (hostname === 'raw.githubusercontent.com' || hostname === 'api.github.com')) {
             self.before(function (req) {

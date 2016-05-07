@@ -8,4 +8,5 @@ export interface UninstallDependencyOptions {
     cwd: string;
     emitter?: Emitter;
 }
-export declare function uninstallDependency(name: string, options: UninstallDependencyOptions): Promise<void>;
+export declare function uninstallDependency(name: string, options: UninstallDependencyOptions): Promise<any>;
+export declare function uninstallDependencies(names: string[], options: UninstallDependencyOptions): Promise<any>;

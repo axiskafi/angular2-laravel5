@@ -3,16 +3,17 @@ export interface Dependency {
     type: string;
     raw: string;
     location: string;
-    meta: {
-        name?: string;
-        path?: string;
-        org?: string;
-        repo?: string;
-        sha?: string;
-        version?: string;
-        tag?: string;
-        source?: string;
-    };
+    meta: DependencyMeta;
+}
+export interface DependencyMeta {
+    name?: string;
+    path?: string;
+    org?: string;
+    repo?: string;
+    sha?: string;
+    version?: string;
+    tag?: string;
+    source?: string;
 }
 export interface DependencyTree {
     name?: string;

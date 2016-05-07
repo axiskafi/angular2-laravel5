@@ -1,0 +1,1 @@
+{"version":3,"sources":["main.ts"],"names":[],"mappings":";;;;;;;;;;;;;YAGA,oCAAS,CAAC,4BAAY,CAAC,CAAC","file":"main.js","sourcesContent":["import {bootstrap}    from '@angular/platform-browser-dynamic';\nimport {AppComponent} from './app.component';\n\nbootstrap(AppComponent);"],"sourceRoot":"/source/"}

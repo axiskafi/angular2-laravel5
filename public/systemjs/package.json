@@ -1,41 +1,41 @@
 {
   "_args": [
     [
-      "systemjs@0.19.24",
+      "systemjs@0.19.27",
       "/Applications/AMPPS/www/angular2-laravel5"
     ]
   ],
-  "_from": "systemjs@0.19.24",
-  "_id": "systemjs@0.19.24",
+  "_from": "systemjs@0.19.27",
+  "_id": "systemjs@0.19.27",
   "_inCache": true,
   "_installable": true,
   "_location": "/systemjs",
-  "_nodeVersion": "5.5.0",
+  "_nodeVersion": "4.4.1",
   "_npmOperationalInternal": {
-    "host": "packages-13-west.internal.npmjs.com",
-    "tmp": "tmp/systemjs-0.19.24.tgz_1457532083346_0.19155846070498228"
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/systemjs-0.19.27.tgz_1461935365619_0.16924894507974386"
   },
   "_npmUser": {
     "email": "guybedford@gmail.com",
     "name": "guybedford"
   },
-  "_npmVersion": "3.3.12",
+  "_npmVersion": "2.14.20",
   "_phantomChildren": {},
   "_requested": {
     "name": "systemjs",
-    "raw": "systemjs@0.19.24",
-    "rawSpec": "0.19.24",
+    "raw": "systemjs@0.19.27",
+    "rawSpec": "0.19.27",
     "scope": null,
-    "spec": "0.19.24",
+    "spec": "0.19.27",
     "type": "version"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/systemjs/-/systemjs-0.19.24.tgz",
-  "_shasum": "2695c4a72a703e53c4d6dd0cf4f28c51adc96a12",
+  "_resolved": "https://registry.npmjs.org/systemjs/-/systemjs-0.19.27.tgz",
+  "_shasum": "f1740d565ce64371ac0de7072a4d1e5471ba7ba2",
   "_shrinkwrap": null,
-  "_spec": "systemjs@0.19.24",
+  "_spec": "systemjs@0.19.27",
   "_where": "/Applications/AMPPS/www/angular2-laravel5",
   "author": {
     "name": "Guy Bedford"
@@ -44,23 +44,27 @@
     "url": "https://github.com/systemjs/systemjs/issues"
   },
   "dependencies": {
-    "es6-module-loader": "^0.17.10",
     "when": "^3.7.5"
   },
   "description": "Universal dynamic module loader",
   "devDependencies": {
     "babel-core": "^5.8.22",
+    "es6-module-loader": "^0.17.11",
     "qunit": "^0.6.2",
-    "traceur": "0.0.102",
+    "traceur": "0.0.105",
     "typescript": "^1.6.2",
     "uglify-js": "~2.4.23"
   },
   "directories": {},
   "dist": {
-    "shasum": "2695c4a72a703e53c4d6dd0cf4f28c51adc96a12",
-    "tarball": "https://registry.npmjs.org/systemjs/-/systemjs-0.19.24.tgz"
+    "shasum": "f1740d565ce64371ac0de7072a4d1e5471ba7ba2",
+    "tarball": "https://registry.npmjs.org/systemjs/-/systemjs-0.19.27.tgz"
   },
-  "gitHead": "bb588cee15403be37edb807b765fc69168014f36",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "gitHead": "596b751b531d960acc73ff41678c4681d137ae75",
   "homepage": "https://github.com/systemjs/systemjs#readme",
   "license": "MIT",
   "maintainers": [
@@ -84,5 +88,5 @@
     "test:traceur": "qunit -c s:./index.js -t ./test/test-traceur.js",
     "test:typescript": "qunit -c s:./index.js -t ./test/test-typescript.js"
   },
-  "version": "0.19.24"
+  "version": "0.19.27"
 }

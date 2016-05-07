@@ -1,90 +1,97 @@
 "use strict";
 var extend = require('xtend');
 var Promise = require('any-promise');
-var promise_finally_1 = require('promise-finally');
 var events_1 = require('events');
 var fs_1 = require('./utils/fs');
 var find_1 = require('./utils/find');
 var path_1 = require('./utils/path');
 function uninstallDependency(name, options) {
-    var emitter = options.emitter || new events_1.EventEmitter();
-    function uninstall(name, options) {
-        return removeDependency(name, options).then(function () { return writeToConfig(name, options); });
-    }
-    return find_1.findProject(options.cwd)
-        .then(function (cwd) { return uninstall(name, extend({ emitter: emitter }, options, { cwd: cwd })); }, function () { return uninstall(name, extend({ emitter: emitter }, options)); });
+    return uninstallDependencies([name], options);
 }
 exports.uninstallDependency = uninstallDependency;
-function writeToConfig(name, options) {
-    if (options.save || options.saveDev) {
+function uninstallDependencies(names, options) {
+    var emitter = options.emitter || new events_1.EventEmitter();
+    return find_1.findProject(options.cwd)
+        .then(function (cwd) { return extend(options, { cwd: cwd, emitter: emitter }); }, function () { return extend(options, { emitter: emitter }); })
+        .then(function (options) {
+        return Promise.all(names.map(function (x) { return uninstallFrom(x, options); }))
+            .then(function () { return writeBundle(names, options); })
+            .then(function () { return writeToConfig(names, options); })
+            .then(function () { return undefined; });
+    });
+}
+exports.uninstallDependencies = uninstallDependencies;
+function uninstallFrom(name, options) {
+    var cwd = options.cwd, ambient = options.ambient, emitter = options.emitter;
+    var location = path_1.getDependencyLocation({ name: name, cwd: cwd, ambient: ambient });
+    return Promise.all([
+        fs_1.rmUntil(location.main, { cwd: cwd, emitter: emitter }),
+        fs_1.rmUntil(location.browser, { cwd: cwd, emitter: emitter })
+    ]);
+}
+function writeToConfig(names, options) {
+    if (options.save || options.saveDev || options.savePeer) {
         return fs_1.transformConfig(options.cwd, function (config) {
-            if (options.save) {
-                if (options.ambient) {
-                    if (config.ambientDependencies && config.ambientDependencies[name]) {
-                        delete config.ambientDependencies[name];
+            for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
+                var name = names_1[_i];
+                if (options.save) {
+                    if (options.ambient) {
+                        if (config.ambientDependencies && config.ambientDependencies[name]) {
+                            delete config.ambientDependencies[name];
+                        }
+                        else {
+                            return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in ambient dependencies"));
+                        }
                     }
                     else {
-                        return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in ambient dependencies"));
+                        if (config.dependencies && config.dependencies[name]) {
+                            delete config.dependencies[name];
+                        }
+                        else {
+                            return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in dependencies"));
+                        }
                     }
                 }
-                else {
-                    if (config.dependencies && config.dependencies[name]) {
-                        delete config.dependencies[name];
+                if (options.saveDev) {
+                    if (options.ambient) {
+                        if (config.ambientDevDependencies && config.ambientDevDependencies[name]) {
+                            delete config.ambientDevDependencies[name];
+                        }
+                        else {
+                            return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in ambient dev dependencies"));
+                        }
                     }
                     else {
-                        return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in dependencies"));
+                        if (config.devDependencies && config.devDependencies[name]) {
+                            delete config.devDependencies[name];
+                        }
+                        else {
+                            return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in dev dependencies"));
+                        }
                     }
                 }
-            }
-            if (options.saveDev) {
-                if (options.ambient) {
-                    if (config.ambientDevDependencies && config.ambientDevDependencies[name]) {
-                        delete config.ambientDevDependencies[name];
+                if (options.savePeer) {
+                    if (config.peerDependencies && config.peerDependencies[name]) {
+                        delete config.peerDependencies[name];
                     }
                     else {
-                        return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in ambient dev dependencies"));
+                        return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in peer dependencies"));
                     }
-                }
-                else {
-                    if (config.devDependencies && config.devDependencies[name]) {
-                        delete config.devDependencies[name];
-                    }
-                    else {
-                        return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in dev dependencies"));
-                    }
-                }
-            }
-            if (options.savePeer) {
-                if (config.peerDependencies && config.peerDependencies[name]) {
-                    delete config.peerDependencies[name];
-                }
-                else {
-                    return Promise.reject(new TypeError("Typings for \"" + name + "\" are not listed in peer dependencies"));
                 }
             }
             return config;
         });
     }
 }
-function removeDependency(name, options) {
+function writeBundle(names, options) {
     var cwd = options.cwd, ambient = options.ambient;
-    var location = path_1.getDependencyLocation({ name: name, cwd: cwd, ambient: ambient });
-    function remove(dir, path, dtsPath) {
-        return fs_1.isFile(path)
-            .then(function (exists) {
-            if (!exists) {
-                options.emitter.emit('enoent', { path: path });
-            }
-            return promise_finally_1.default(fs_1.rimraf(dir), function () {
-                return fs_1.transformDtsFile(dtsPath, function (typings) {
-                    return typings.filter(function (x) { return x !== path; });
-                });
-            });
-        });
-    }
+    var bundle = path_1.getTypingsLocation(options);
+    var locations = names.map(function (name) { return path_1.getDependencyLocation({ name: name, cwd: cwd, ambient: ambient }); });
+    var mainLocations = locations.map(function (x) { return x.main; });
+    var browserLocations = locations.map(function (x) { return x.browser; });
     return Promise.all([
-        remove(location.mainPath, location.mainFile, location.mainDtsFile),
-        remove(location.browserPath, location.browserFile, location.browserDtsFile)
-    ]).then(function () { return undefined; });
+        fs_1.transformDtsFile(bundle.main, function (x) { return x.filter(function (x) { return mainLocations.indexOf(x) === -1; }); }),
+        fs_1.transformDtsFile(bundle.browser, function (x) { return x.filter(function (x) { return browserLocations.indexOf(x) === -1; }); })
+    ]);
 }
 //# sourceMappingURL=uninstall.js.map

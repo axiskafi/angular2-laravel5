@@ -1,4 +1,4 @@
-System.register(['angular2/core'], function(exports_1, context_1) {
+System.register(['@angular/platform-browser-dynamic', '@angular/core'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,10 +10,13 @@ System.register(['angular2/core'], function(exports_1, context_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
+    var platform_browser_dynamic_1, core_1;
     var AppComponent;
     return {
         setters:[
+            function (platform_browser_dynamic_1_1) {
+                platform_browser_dynamic_1 = platform_browser_dynamic_1_1;
+            },
             function (core_1_1) {
                 core_1 = core_1_1;
             }],
@@ -24,13 +27,14 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'my-app',
-                        template: "\n        <h1>My Angular 2 project inside Laravel 5</h1>\n        <p>Enjoyed!!</p>\n    ",
+                        template: "\n        <h1>My Angular 2.0.0-rc.1 project inside Laravel 5</h1>\n        <p>Enjoyed!!</p>\n    ",
                     }), 
                     __metadata('design:paramtypes', [])
                 ], AppComponent);
                 return AppComponent;
             }());
             exports_1("AppComponent", AppComponent);
+            platform_browser_dynamic_1.bootstrap(AppComponent);
         }
     }
 });

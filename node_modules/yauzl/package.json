@@ -52,7 +52,7 @@
   "directories": {},
   "dist": {
     "shasum": "9528f442dab1b2284e58b4379bb194e22e0c4005",
-    "tarball": "http://registry.npmjs.org/yauzl/-/yauzl-2.4.1.tgz"
+    "tarball": "https://registry.npmjs.org/yauzl/-/yauzl-2.4.1.tgz"
   },
   "gitHead": "d528c3ad49efd27986ee661159fade32617cedb6",
   "homepage": "https://github.com/thejoshwolfe/yauzl",

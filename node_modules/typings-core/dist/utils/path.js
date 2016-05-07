@@ -91,30 +91,30 @@ function normalizeToDefinition(path) {
 }
 exports.normalizeToDefinition = normalizeToDefinition;
 function getTypingsLocation(options) {
-    var typingsDir = path_1.join(options.cwd, config_1.TYPINGS_DIR);
-    var mainDtsFile = path_1.join(typingsDir, config_1.DTS_MAIN_FILE);
-    var browserDtsFile = path_1.join(typingsDir, config_1.DTS_BROWSER_FILE);
-    return { typingsDir: typingsDir, mainDtsFile: mainDtsFile, browserDtsFile: browserDtsFile };
+    var typings = path_1.join(options.cwd, config_1.TYPINGS_DIR);
+    var main = path_1.join(typings, config_1.DTS_MAIN_FILE);
+    var browser = path_1.join(typings, config_1.DTS_BROWSER_FILE);
+    return { main: main, browser: browser, typings: typings };
 }
 exports.getTypingsLocation = getTypingsLocation;
 function getDependencyLocation(options) {
     var mainDir = options.ambient ? ambientMainTypingsDir : mainTypingsDir;
     var browserDir = options.ambient ? ambientBrowserTypingsDir : browserTypingsDir;
-    var _a = getTypingsLocation(options), mainDtsFile = _a.mainDtsFile, browserDtsFile = _a.browserDtsFile;
-    var mainPath = path_1.join(options.cwd, mainDir, options.name);
-    var browserPath = path_1.join(options.cwd, browserDir, options.name);
-    var mainFile = path_1.join(mainPath, 'index.d.ts');
-    var browserFile = path_1.join(browserPath, 'index.d.ts');
-    return {
-        mainFile: mainFile,
-        browserFile: browserFile,
-        mainPath: mainPath,
-        browserPath: browserPath,
-        mainDtsFile: mainDtsFile,
-        browserDtsFile: browserDtsFile
-    };
+    var main = path_1.join(options.cwd, mainDir, options.name, 'index.d.ts');
+    var browser = path_1.join(options.cwd, browserDir, options.name, 'index.d.ts');
+    return { mainDir: mainDir, browserDir: browserDir, main: main, browser: browser };
 }
 exports.getDependencyLocation = getDependencyLocation;
+function getInfoFromDependencyLocation(path, options) {
+    var parts = path_1.relative(options.cwd, path).split(path_1.sep);
+    return {
+        path: path,
+        browser: parts[0] === 'browser',
+        ambient: parts[1] === 'ambient',
+        name: parts.slice(2, -1).join('/')
+    };
+}
+exports.getInfoFromDependencyLocation = getInfoFromDependencyLocation;
 function detectEOL(contents) {
     var match = contents.match(/\r\n|\r|\n/);
     return match ? match[0] : undefined;

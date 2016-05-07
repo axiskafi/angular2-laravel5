@@ -1,7 +1,12 @@
-///<reference path="../../../node_modules/angular2/typings/browser.d.ts"/>
+/// <reference path="../../../public/@angular/common/index.d.ts" />
+/// <reference path="../../../public/@angular/compiler/index.d.ts" />
+/// <reference path="../../../public/@angular/core/index.d.ts" />
+/// <reference path="../../../public/@angular/platform-browser-dynamic/index.d.ts" />
 
-import {bootstrap} from 'angular2/platform/browser';
+
+import { Http, Response } from '@angular/http';
+import {bootstrap} from '@angular/platform-browser-dynamic';
 import {AppComponent} from "./app.component";
-import { Http, Response } from 'angular2/http';
+
 
 bootstrap(AppComponent);

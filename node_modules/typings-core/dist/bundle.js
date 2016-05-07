@@ -28,7 +28,7 @@ function bundle(options) {
                 fs_1.writeFile(path_1.join(path, 'browser.d.ts'), output.browser)
             ]);
         })
-            .then(function () { return output; });
+            .then(function () { return ({ tree: output.tree }); });
     });
 }
 exports.bundle = bundle;

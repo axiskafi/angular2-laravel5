@@ -1,3 +1,8 @@
+# 2.1.2
+
+* Fixes an issue where gulp-cssnano was not passing on sourcemap errors and was
+  crashing instead.
+
 # 2.1.1
 
 * Added more keywords for easier discovery on npm.

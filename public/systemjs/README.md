@@ -77,13 +77,13 @@ System.config({
 });
 ```
 
-### Polyfills
+### Promise Polyfill
 
-SystemJS relies on `Promise` and `URL` being present in the environment. When these are not available it will send a request out to the `system-polyfills.js` file located in the dist folder which will polyfill `window.Promise` and `window.URLPolyfill`.
+SystemJS relies on `Promise` being present in the environment.
 
-This is typically necessary in IE, so ensure to keep this file in the same folder as SystemJS.
+For the best performance in IE and older browsers, it is advisable to load [Bluebird](https://github.com/petkaantonov/bluebird) or [es6-promise](https://github.com/stefanpenner/es6-promise) before SystemJS.
 
-Alternatively these polyfills can be loaded with a script tag before SystemJS or via other polyfill implementations as well.
+Otherwise, when Promise is not available, SystemJS will attempt to load the `system-polyfills.js` file located in the dist folder which contains the when.js Promise polyfill.
 
 ### NodeJS
 
@@ -128,28 +128,31 @@ System.import('lodash').then(function (_) {
 
 Supported loader plugins:
 
-* [CSS](https://github.com/systemjs/plugin-css) `System.import('my/file.css')`
-* [Image](https://github.com/systemjs/plugin-image) `System.import('some/image.png!image')`
-* [JSON](https://github.com/systemjs/plugin-json) `System.import('some/data.json')`
-* [Text](https://github.com/systemjs/plugin-text) `System.import('some/text.txt!text')`
+* [CSS](https://github.com/systemjs/plugin-css)
+* [Image](https://github.com/systemjs/plugin-image)
+* [JSON](https://github.com/systemjs/plugin-json)
+* [Text](https://github.com/systemjs/plugin-text)
+* [Node Binary](https://github.com/systemjs/plugin-node-binary)
 
 Additional Plugins:
 
-* [Audio](https://github.com/ozsay/plugin-audio) `System.import('./beep.mp3!audio')`
-* [CoffeeScript](https://github.com/forresto/plugin-coffee) `System.import('./test.coffee')`
-* [Image (lazy)](https://github.com/laurentgoudet/plugin-lazyimage) Async plugin-image
+* [Audio](https://github.com/ozsay/plugin-audio)
+* [CoffeeScript](https://github.com/forresto/plugin-coffee)
+* [Ember Handlebars](https://github.com/n-fuse/plugin-ember-hbs)
+* [Handlebars](https://github.com/davis/plugin-hbs)
+* [HTML](https://github.com/Hypercubed/systemjs-plugin-html/)
+* [Image (lazy)](https://github.com/laurentgoudet/plugin-lazyimage)
 * [Jade](https://github.com/johnsoftek/plugin-jade)
 * [Jade VirtualDOM](https://github.com/WorldMaker/system-jade-virtualdom)
-* [JSX](https://github.com/floatdrop/plugin-jsx) `System.import('template.jsx')`
-* [Markdown](https://github.com/guybedford/plugin-md) `System.import('app/some/project/README.md').then(function(html) {})`
-* [WebFont](https://github.com/guybedford/plugin-font) `System.import('google Port Lligat Slab, Droid Sans !font')`
-* [Handlebars](https://github.com/davis/plugin-hbs) `System.import('template.hbs!')`
-* [Ember Handlebars](https://github.com/n-fuse/plugin-ember-hbs) `System.import('template.hbs!')`
-* [raw](https://github.com/matthewbauer/plugin-raw) `System.import('file.bin!raw').then(function(data) {})`
-* [jst](https://github.com/podio/plugin-jst) Underscore templates
-* [SASS](https://github.com/screendriver/plugin-sass) `System.import('style.scss!')`
+* [jst](https://github.com/podio/plugin-jst)
+* [JSX](https://github.com/floatdrop/plugin-jsx)
+* [Markdown](https://github.com/guybedford/plugin-md)
+* [raw](https://github.com/matthewbauer/plugin-raw)
+* [SASS](https://github.com/screendriver/plugin-sass)
+* [SCSS](https://github.com/kevcjones/plugin-scss)
+* [sofe](https://github.com/CanopyTax/sofe)
 * [SVG](https://github.com/vuzonp/systemjs-plugin-svg)
-* [HTML](https://github.com/Hypercubed/systemjs-plugin-html/) HTML imports
+* [WebFont](https://github.com/guybedford/plugin-font)
 * [YAML](https://github.com/tb/plugin-yaml)
 
 Guides:

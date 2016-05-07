@@ -8,25 +8,33 @@ export declare function relativeTo(from: string, to: string): string;
 export declare function toDefinition(path: string): string;
 export declare function pathFromDefinition(path: string): string;
 export declare function normalizeToDefinition(path: string): string;
+export interface TypingsLocationResult extends LocationResult {
+    typings: string;
+}
 export declare function getTypingsLocation(options: {
     cwd: string;
-}): {
-    typingsDir: string;
-    mainDtsFile: string;
-    browserDtsFile: string;
-};
-export interface DefinitionOptions {
+}): TypingsLocationResult;
+export interface LocationOptions {
     cwd: string;
     name: string;
-    ambient?: boolean;
+    ambient: boolean;
 }
-export declare function getDependencyLocation(options: DefinitionOptions): {
-    mainFile: string;
-    browserFile: string;
-    mainPath: string;
-    browserPath: string;
-    mainDtsFile: string;
-    browserDtsFile: string;
+export interface LocationResult {
+    main: string;
+    browser: string;
+}
+export interface DependencyLocationResult extends LocationResult {
+    mainDir: string;
+    browserDir: string;
+}
+export declare function getDependencyLocation(options: LocationOptions): DependencyLocationResult;
+export declare function getInfoFromDependencyLocation(path: string, options: {
+    cwd: string;
+}): {
+    path: string;
+    browser: boolean;
+    ambient: boolean;
+    name: string;
 };
 export declare function detectEOL(contents: string): string;
 export declare function normalizeEOL(contents: string, eol: string): string;

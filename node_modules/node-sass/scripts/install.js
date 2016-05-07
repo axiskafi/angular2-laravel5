@@ -5,12 +5,10 @@
 var fs = require('fs'),
     eol = require('os').EOL,
     mkdir = require('mkdirp'),
-    npmconf = require('npmconf'),
     path = require('path'),
+    sass = require('../lib/extensions'),
     request = require('request'),
     pkg = require('../package.json');
-
-require('../lib/extensions');
 
 /**
  * Download file, if succeeds save, if not delete
@@ -31,65 +29,67 @@ function download(url, dest, cb) {
       'or configure npm proxy via', eol, eol,
       '      npm config set proxy http://example.com:8080'].join(''));
   };
+
   var successful = function(response) {
     return response.statusCode >= 200 && response.statusCode < 300;
   };
 
-  applyProxy({ rejectUnauthorized: false }, function(options) {
-    options.headers = {
-      'User-Agent': [
-        'node/', process.version, ' ',
-        'node-sass-installer/', pkg.version
-      ].join('')
-    };
-    try {
-      request(url, options, function(err, response) {
-        if (err) {
-          reportError(err);
-        } else if (!successful(response)) {
-            reportError(['HTTP error', response.statusCode, response.statusMessage].join(' '));
-        } else {
-            cb();
-        }
-      }).on('response', function(response) {
-          if (successful(response)) {
-            response.pipe(fs.createWriteStream(dest));
-          }
-      });
-    } catch (err) {
-      cb(err);
+  var options = { 
+    rejectUnauthorized: false,
+    proxy: getProxy(),
+    headers: {
+      'User-Agent': getUserAgent(),
     }
-  });
+  };
+
+  try {
+    request(url, options, function(err, response) {
+      if (err) {
+        reportError(err);
+      } else if (!successful(response)) {
+          reportError(['HTTP error', response.statusCode, response.statusMessage].join(' '));
+      } else {
+          cb();
+      }
+    })
+    .on('response', function(response) {
+        if (successful(response)) {
+          response.pipe(fs.createWriteStream(dest));
+        }
+    });
+  } catch (err) {
+    cb(err);
+  }
 }
 
 /**
- * Get applyProxy settings
+ * A custom user agent use for binary downloads.
+ *
+ * @api private
+ */
+function getUserAgent() {
+  return [
+    'node/', process.version, ' ',
+    'node-sass-installer/', pkg.version
+  ].join('');
+}
+
+/**
+ * Determine local proxy settings
  *
  * @param {Object} options
  * @param {Function} cb
  * @api private
  */
 
-function applyProxy(options, cb) {
-  npmconf.load({}, function (er, conf) {
-    var proxyUrl;
-
-    if (!er) {
-      proxyUrl = conf.get('https-proxy') ||
-                 conf.get('proxy') ||
-                 conf.get('http-proxy');
-    }
-
-    var env = process.env;
-
-    options.proxy = proxyUrl ||
-                    env.HTTPS_PROXY ||
-                    env.https_proxy ||
-                    env.HTTP_PROXY ||
-                    env.http_proxy;
-
-    cb(options);
-  });
+function getProxy() {
+  return process.env.npm_config_https_proxy ||
+         process.env.npm_config_proxy ||
+         process.env.npm_config_http_proxy ||
+         process.env.HTTPS_PROXY ||
+         process.env.https_proxy ||
+         process.env.HTTP_PROXY ||
+         process.env.http_proxy;
 }
 
 /**
@@ -99,24 +99,23 @@ function applyProxy(options, cb) {
  */
 
 function checkAndDownloadBinary() {
-  try {
-    process.sass.getBinaryPath(true);
+  if (sass.hasBinary(sass.getBinaryPath())) {
     return;
-  } catch (e) { }
+  }
 
-  mkdir(path.dirname(process.sass.binaryPath), function(err) {
+  mkdir(path.dirname(sass.getBinaryPath()), function(err) {
     if (err) {
       console.error(err);
       return;
     }
 
-    download(process.sass.binaryUrl, process.sass.binaryPath, function(err) {
+    download(sass.getBinaryUrl(), sass.getBinaryPath(), function(err) {
       if (err) {
         console.error(err);
         return;
       }
 
-      console.log('Binary downloaded and installed at', process.sass.binaryPath);
+      console.log('Binary downloaded and installed at', sass.getBinaryPath());
     });
   });
 }
@@ -131,7 +130,7 @@ if (process.env.SKIP_SASS_BINARY_DOWNLOAD_FOR_CI) {
 }
 
 /**
- * If binary does not exsit, download it
+ * If binary does not exist, download it
  */
 
 checkAndDownloadBinary();

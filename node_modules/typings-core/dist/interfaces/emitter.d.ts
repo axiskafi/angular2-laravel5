@@ -12,7 +12,7 @@ export interface Emitter extends EventEmitter {
     on(event: 'postmessage', listener: (e: PostMessageEvent) => any): this;
     on(event: 'ambientdependencies', listener: (e: AmbientDependenciesEvent) => any): this;
     on(event: 'badlocation', listener: (e: BadLocationEvent) => any): this;
-    on(event: 'deprecated', listener: (e: DeprecatedEvent) => any): this;
+    on(event: 'prune', listener: (e: PruneEvent) => any): this;
     on(event: string, listener: Function): this;
     emit(event: 'reference', e: ReferenceEvent): boolean;
     emit(event: 'resolve', e: ResolveEvent): boolean;
@@ -24,7 +24,7 @@ export interface Emitter extends EventEmitter {
     emit(event: 'postmessage', e: PostMessageEvent): boolean;
     emit(event: 'ambientdependencies', e: AmbientDependenciesEvent): boolean;
     emit(event: 'badlocation', e: BadLocationEvent): boolean;
-    emit(event: 'deprecated', e: DeprecatedEvent): boolean;
+    emit(event: 'prune', e: PruneEvent): boolean;
     emit(event: string, ...args: any[]): boolean;
 }
 export interface ReferenceEvent {
@@ -37,7 +37,8 @@ export interface ReferenceEvent {
 export interface ResolveEvent {
     src: string;
     raw: string;
-    parent?: DependencyTree;
+    name: string;
+    parent: DependencyTree;
 }
 export interface ResolvedEvent extends ResolveEvent {
     tree: DependencyTree;
@@ -74,8 +75,8 @@ export interface BadLocationEvent {
     raw: string;
     location: string;
 }
-export interface DeprecatedEvent {
-    raw: string;
-    date: Date;
-    parent: DependencyTree;
+export interface PruneEvent {
+    name: string;
+    ambient: boolean;
+    browser: boolean;
 }
