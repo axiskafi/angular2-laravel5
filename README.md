@@ -2,7 +2,7 @@
 Angular 2 setup with Laravel 5
 
 <strong>Step1: </strong>
-You need pre installed composer, nodejs and typescript to your system
+You need pre installed 'composer', 'nodejs' and 'typescript' to your system
 
 <strong>Step2: </strong>
 
@@ -20,9 +20,9 @@ for me its
 cd /Appliations/AMPPS/www/angular2-laravel5
 then run below commands into your terminal/command prompt
 
-- composer update
+- 'composer update'
 
-- npm install
+- 'npm install'
 
 <strong>step4: </strong>
 Open file node_modules\elixir-typescript\index.js and comment out this line ".pipe($.concat(paths.output.name))" .
@@ -32,9 +32,9 @@ The two js files will be generated to "public/js" as your configuration.
 <strong>Step 5</strong>
 now in the terminal run these commands
 
-- gulp bower --force-latest
+- 'gulp bower --force-latest'
 
-- gulp
+- 'gulp'
 
 <strong>Step 6</strong>
 
@@ -43,18 +43,18 @@ now in the terminal run these commands
 <strong>Step 1</strong>
 By using terminal/command prompt go to the project folder
 for me its
-cd /Appliations/AMPPS/www/angular2-laravel5
+'cd /Appliations/AMPPS/www/angular2-laravel5'
 
 now type this command
-php artisan serve --port=8080
+'php artisan serve --port=8080'
 
 <strong>stept 2</strong>
 open a new terminal and type this command
-gulp watch
+'gulp watch'
 
 <strong>step 3</strong>
 now open a browser and type this
-http://localhost:8080/
+'http://localhost:8080/'
 
 you will write your angular code to the resources/assets/typescript folder
 whenever you will write a new code the elixir type script will automatically compile it via gulp watch
