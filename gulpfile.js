@@ -1,11 +1,12 @@
 var gulp = require("gulp");
-var bower = require("gulp-bower");
+//var bower = require("gulp-bower");
 var elixir = require("laravel-elixir");
+require('laravel-elixir-livereload');
 var elixirTypscript = require('elixir-typescript');
-
+/*
 gulp.task('bower', function () {
     return bower();
-});
+});*/
 
 var vendors = '../../assets/vendors/';
 
@@ -21,7 +22,6 @@ var paths = {
 
 
 elixir(function (mix) {
-
     mix.copy('node_modules/@angular', 'public/@angular');
     mix.copy('node_modules/rxjs', 'public/rxjs');
     mix.copy('node_modules/systemjs', 'public/systemjs');
@@ -31,7 +31,7 @@ elixir(function (mix) {
     mix.copy('node_modules/satellizer', 'public/satellizer');
     mix.copy('node_modules/platform', 'public/platform');
     mix.copy('node_modules/reflect-metadata', 'public/reflect-metadata');
-
+/*
     mix.copy('resources/assets/vendors/jquery-ui/themes/base/images', 'public/images');
 
     mix.copy('resources/assets/vendors/c3/c3.min.css', 'public/css');
@@ -39,7 +39,7 @@ elixir(function (mix) {
     mix.copy('resources/assets/vendors/d3/d3.min.js', 'public/js');
 
     mix.copy('resources/assets/vendors/font-awesome/fonts', 'public/fonts');
-
+*/
     //CSS Libraries
     /*
     mix.styles([paths.fontawesome + "/css/font-awesome.min.css",
@@ -74,5 +74,7 @@ elixir(function (mix) {
             "noImplicitAny": false
         }
     );
+    mix.livereload();
+    mix.browserSync({proxy: 'localhost:8000'});
 
 });

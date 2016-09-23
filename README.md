@@ -32,8 +32,6 @@ The two js files will be generated to "public/js" as your configuration.
 <strong>Step 5</strong>
 now in the terminal run these commands
 
-- `gulp bower --force-latest`
-
 - `gulp`
 
 <strong>Step 6</strong>
@@ -46,15 +44,15 @@ for me its
 `cd /Appliations/AMPPS/www/angular2-laravel5`
 
 now type this command
-`php artisan serve --port=8080`
+`php artisan serve --host=0`
 
 <strong>stept 2</strong>
 open a new terminal and type this command
 `gulp watch`
 
-<strong>step 3</strong>
-now open a browser and type this
-`http://localhost:8080/`
+<strong>step 4</strong>
+System will automatically open a tab in your default browser and open this link `http://localhost:3000/`
+You dont even need to type the url to the browser.
 
 you will write your angular code to the resources/assets/typescript folder
 whenever you will write a new code the elixir type script will automatically compile it via gulp watch
