@@ -1,11 +1,11 @@
-import {Operator} from '../Operator';
-import {Subscriber} from '../Subscriber';
-import {Observable, SubscribableOrPromise} from '../Observable';
-import {Subscription} from '../Subscription';
+import { Operator } from '../Operator';
+import { Subscriber } from '../Subscriber';
+import { Observable, SubscribableOrPromise } from '../Observable';
+import { Subscription } from '../Subscription';
 
-import {subscribeToResult} from '../util/subscribeToResult';
-import {OuterSubscriber} from '../OuterSubscriber';
-import {InnerSubscriber} from '../InnerSubscriber';
+import { subscribeToResult } from '../util/subscribeToResult';
+import { OuterSubscriber } from '../OuterSubscriber';
+import { InnerSubscriber } from '../InnerSubscriber';
 
 /**
  * Buffers the source Observable values starting from an emission from
@@ -162,7 +162,7 @@ class BufferToggleSubscriber<T, O> extends OuterSubscriber<T, O> {
 
     const innerSubscription = subscribeToResult(this, closingNotifier, <any>context);
 
-    if (!innerSubscription || innerSubscription.isUnsubscribed) {
+    if (!innerSubscription || innerSubscription.closed) {
       this.closeBuffer(context);
     } else {
       (<any> innerSubscription).context = context;

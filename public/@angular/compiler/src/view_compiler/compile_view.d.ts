@@ -1,28 +1,38 @@
-import { ViewType } from '../../core_private';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { CompiledAnimationTriggerResult } from '../animation/animation_compiler';
+import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metadata';
+import { CompilerConfig } from '../config';
 import * as o from '../output/output_ast';
-import { CompileQuery } from './compile_query';
-import { NameResolver } from './expression_converter';
+import { ViewType } from '../private_import_core';
+import { CompileBinding } from './compile_binding';
 import { CompileElement, CompileNode } from './compile_element';
 import { CompileMethod } from './compile_method';
 import { CompilePipe } from './compile_pipe';
-import { CompileDirectiveMetadata, CompilePipeMetadata, CompileTokenMap } from '../compile_metadata';
-import { CompilerConfig } from '../config';
-import { CompileBinding } from './compile_binding';
+import { CompileQuery } from './compile_query';
+import { NameResolver } from './expression_converter';
 export declare class CompileView implements NameResolver {
     component: CompileDirectiveMetadata;
     genConfig: CompilerConfig;
     pipeMetas: CompilePipeMetadata[];
     styles: o.Expression;
+    animations: CompiledAnimationTriggerResult[];
     viewIndex: number;
     declarationElement: CompileElement;
     templateVariableBindings: string[][];
     viewType: ViewType;
-    viewQueries: CompileTokenMap<CompileQuery[]>;
+    viewQueries: Map<any, CompileQuery[]>;
     nodes: CompileNode[];
     rootNodesOrAppElements: o.Expression[];
     bindings: CompileBinding[];
     classStatements: o.Statement[];
     createMethod: CompileMethod;
+    animationBindingsMethod: CompileMethod;
     injectorGetMethod: CompileMethod;
     updateContentQueriesMethod: CompileMethod;
     dirtyParentQueriesMethod: CompileMethod;
@@ -32,6 +42,7 @@ export declare class CompileView implements NameResolver {
     afterContentLifecycleCallbacksMethod: CompileMethod;
     afterViewLifecycleCallbacksMethod: CompileMethod;
     destroyMethod: CompileMethod;
+    detachMethod: CompileMethod;
     eventHandlerMethods: o.ClassMethod[];
     fields: o.ClassField[];
     getters: o.ClassGetter[];
@@ -48,7 +59,7 @@ export declare class CompileView implements NameResolver {
     literalMapCount: number;
     pipeCount: number;
     componentContext: o.Expression;
-    constructor(component: CompileDirectiveMetadata, genConfig: CompilerConfig, pipeMetas: CompilePipeMetadata[], styles: o.Expression, viewIndex: number, declarationElement: CompileElement, templateVariableBindings: string[][]);
+    constructor(component: CompileDirectiveMetadata, genConfig: CompilerConfig, pipeMetas: CompilePipeMetadata[], styles: o.Expression, animations: CompiledAnimationTriggerResult[], viewIndex: number, declarationElement: CompileElement, templateVariableBindings: string[][]);
     callPipe(name: string, input: o.Expression, args: o.Expression[]): o.Expression;
     getLocal(name: string): o.Expression;
     createLiteralArray(values: o.Expression[]): o.Expression;

@@ -10,10 +10,10 @@ export interface AttrProp {
     bindonAttr: string;
 }
 export interface ComponentInfo {
-    type: Type;
+    type: Type<any>;
     selector: string;
     inputs: AttrProp[];
     outputs: AttrProp[];
 }
-export declare function getComponentInfo(type: Type): ComponentInfo;
+export declare function getComponentInfo(type: Type<any>): ComponentInfo;
 export declare function parseFields(names: string[]): AttrProp[];

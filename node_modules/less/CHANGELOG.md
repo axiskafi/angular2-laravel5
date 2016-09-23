@@ -1,3 +1,22 @@
+# 2.7.1 HOTFIX
+
+2016-05-09
+
+ - Revert commit 470af20 (source map performance) which broke source maps
+
+# 2.7.0
+
+2016-05-07
+
+ - Fixes for contrast() function
+ - Allow root functions for plugins
+ - Allow semi-colon separators in functions
+ - Performance improvements for source maps
+ - Fix "blank page" issue in browser
+ - Compatibility fixes for Node 6.x
+ - Fix AST to include single-line comments
+ - Fix reversion for "color-like" words (outputting color values)
+
 # 2.6.1
 
 2016-03-04
@@ -141,7 +160,7 @@
  - Improved keyword and anonymous usage with the replace function
  - Added `getCSSAppendage` to sourcemap builder to avoid duplication in plugins
  - Fix problem with plugins when used with the promises version of render
- - If the render callback throws an exception it now propogates instead of calling the callback again with an error
+ - If the render callback throws an exception it now propagates instead of calling the callback again with an error
 
 # 2.1.0
 

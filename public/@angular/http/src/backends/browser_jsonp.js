@@ -1,16 +1,23 @@
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../../src/facade/lang');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Injectable } from '@angular/core';
+import { global } from '../facade/lang';
 var _nextRequestId = 0;
-exports.JSONP_HOME = '__ng_jsonp__';
+export var JSONP_HOME = '__ng_jsonp__';
 var _jsonpConnections = null;
 function _getJsonpConnections() {
     if (_jsonpConnections === null) {
-        _jsonpConnections = lang_1.global[exports.JSONP_HOME] = {};
+        _jsonpConnections = global[JSONP_HOME] = {};
     }
     return _jsonpConnections;
 }
-var BrowserJsonp = (function () {
+// Make sure not to evaluate this in a non-browser environment!
+export var BrowserJsonp = (function () {
     function BrowserJsonp() {
     }
     // Construct a <script> element with the specified URL
@@ -20,7 +27,7 @@ var BrowserJsonp = (function () {
         return node;
     };
     BrowserJsonp.prototype.nextRequestID = function () { return "__req" + _nextRequestId++; };
-    BrowserJsonp.prototype.requestCallback = function (id) { return exports.JSONP_HOME + "." + id + ".finished"; };
+    BrowserJsonp.prototype.requestCallback = function (id) { return JSONP_HOME + "." + id + ".finished"; };
     BrowserJsonp.prototype.exposeConnection = function (id, connection) {
         var connections = _getJsonpConnections();
         connections[id] = connection;
@@ -38,9 +45,10 @@ var BrowserJsonp = (function () {
         }
     };
     BrowserJsonp.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
+    BrowserJsonp.ctorParameters = [];
     return BrowserJsonp;
 }());
-exports.BrowserJsonp = BrowserJsonp;
 //# sourceMappingURL=browser_jsonp.js.map

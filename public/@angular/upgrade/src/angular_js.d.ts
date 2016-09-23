@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 export interface IModule {
     config(fn: any): IModule;
     directive(selector: string, factory: any): IModule;
@@ -28,6 +35,7 @@ export interface IRootScopeService {
     $apply(): any;
     $apply(exp: string): any;
     $apply(exp: Function): any;
+    $evalAsync(): any;
     $$childTail: IScope;
     $$childHead: IScope;
     $$nextSibling: IScope;
@@ -112,6 +120,7 @@ export interface IControllerService {
 }
 export interface IInjectorService {
     get(key: string): any;
+    has(key: string): boolean;
 }
 export interface ITestabilityService {
     findBindings(element: Element, expression: string, opt_exactMatch?: boolean): Element[];

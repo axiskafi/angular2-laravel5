@@ -1,20 +1,24 @@
-"use strict";
-var lang_1 = require('../../../src/facade/lang');
-var exceptions_1 = require('../../../src/facade/exceptions');
-var collection_1 = require('../../../src/facade/collection');
-var di_1 = require('../../di');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Optional, SkipSelf } from '../../di';
+import { ListWrapper } from '../../facade/collection';
+import { getTypeNameForDebugging, isBlank, isPresent } from '../../facade/lang';
 /**
  * A repository of different iterable diffing strategies used by NgFor, NgClass, and others.
- * @ts2dart_const
+ * @stable
  */
-var IterableDiffers = (function () {
-    /*@ts2dart_const*/
+export var IterableDiffers = (function () {
     function IterableDiffers(factories) {
         this.factories = factories;
     }
     IterableDiffers.create = function (factories, parent) {
-        if (lang_1.isPresent(parent)) {
-            var copied = collection_1.ListWrapper.clone(parent.factories);
+        if (isPresent(parent)) {
+            var copied = ListWrapper.clone(parent.factories);
             factories = factories.concat(copied);
             return new IterableDiffers(factories);
         }
@@ -42,30 +46,30 @@ var IterableDiffers = (function () {
      * ```
      */
     IterableDiffers.extend = function (factories) {
-        return new di_1.Provider(IterableDiffers, {
+        return {
+            provide: IterableDiffers,
             useFactory: function (parent) {
-                if (lang_1.isBlank(parent)) {
+                if (isBlank(parent)) {
                     // Typically would occur when calling IterableDiffers.extend inside of dependencies passed
                     // to
                     // bootstrap(), which would override default pipes instead of extending them.
-                    throw new exceptions_1.BaseException('Cannot extend IterableDiffers without a parent injector');
+                    throw new Error('Cannot extend IterableDiffers without a parent injector');
                 }
                 return IterableDiffers.create(factories, parent);
             },
             // Dependency technically isn't optional, but we can provide a better error message this way.
-            deps: [[IterableDiffers, new di_1.SkipSelfMetadata(), new di_1.OptionalMetadata()]]
-        });
+            deps: [[IterableDiffers, new SkipSelf(), new Optional()]]
+        };
     };
     IterableDiffers.prototype.find = function (iterable) {
         var factory = this.factories.find(function (f) { return f.supports(iterable); });
-        if (lang_1.isPresent(factory)) {
+        if (isPresent(factory)) {
             return factory;
         }
         else {
-            throw new exceptions_1.BaseException("Cannot find a differ supporting object '" + iterable + "' of type '" + lang_1.getTypeNameForDebugging(iterable) + "'");
+            throw new Error("Cannot find a differ supporting object '" + iterable + "' of type '" + getTypeNameForDebugging(iterable) + "'");
         }
     };
     return IterableDiffers;
 }());
-exports.IterableDiffers = IterableDiffers;
 //# sourceMappingURL=iterable_differs.js.map

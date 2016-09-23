@@ -1,41 +1,52 @@
-"use strict";
-var core_1 = require('@angular/core');
-var core_private_1 = require('../core_private');
-var lang_1 = require('../src/facade/lang');
-var exceptions_1 = require('../src/facade/exceptions');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Injectable, Pipe, resolveForwardRef } from '@angular/core';
+import { isPresent, stringify } from './facade/lang';
+import { ReflectorReader, reflector } from './private_import_core';
 function _isPipeMetadata(type) {
-    return type instanceof core_1.PipeMetadata;
+    return type instanceof Pipe;
 }
-var PipeResolver = (function () {
+/**
+ * Resolve a `Type` for {@link Pipe}.
+ *
+ * This interface can be overridden by the application developer to create custom behavior.
+ *
+ * See {@link Compiler}
+ */
+export var PipeResolver = (function () {
     function PipeResolver(_reflector) {
-        if (lang_1.isPresent(_reflector)) {
-            this._reflector = _reflector;
-        }
-        else {
-            this._reflector = core_1.reflector;
-        }
+        if (_reflector === void 0) { _reflector = reflector; }
+        this._reflector = _reflector;
     }
     /**
-     * Return {@link PipeMetadata} for a given `Type`.
+     * Return {@link Pipe} for a given `Type`.
      */
-    PipeResolver.prototype.resolve = function (type) {
-        var metas = this._reflector.annotations(core_1.resolveForwardRef(type));
-        if (lang_1.isPresent(metas)) {
+    PipeResolver.prototype.resolve = function (type, throwIfNotFound) {
+        if (throwIfNotFound === void 0) { throwIfNotFound = true; }
+        var metas = this._reflector.annotations(resolveForwardRef(type));
+        if (isPresent(metas)) {
             var annotation = metas.find(_isPipeMetadata);
-            if (lang_1.isPresent(annotation)) {
+            if (isPresent(annotation)) {
                 return annotation;
             }
         }
-        throw new exceptions_1.BaseException("No Pipe decorator found on " + lang_1.stringify(type));
+        if (throwIfNotFound) {
+            throw new Error("No Pipe decorator found on " + stringify(type));
+        }
+        return null;
     };
     PipeResolver.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
     PipeResolver.ctorParameters = [
-        { type: core_private_1.ReflectorReader, },
+        { type: ReflectorReader, },
     ];
     return PipeResolver;
 }());
-exports.PipeResolver = PipeResolver;
-exports.CODEGEN_PIPE_RESOLVER = new PipeResolver(core_1.reflector);
 //# sourceMappingURL=pipe_resolver.js.map

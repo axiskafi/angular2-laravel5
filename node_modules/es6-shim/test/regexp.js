@@ -16,8 +16,10 @@ var ifShimIt = (typeof process !== 'undefined' && process.env.NO_ES6_SHIM) ? it.
 var hasSymbols = typeof Symbol === 'function' && typeof Symbol['for'] === 'function' && typeof Symbol() === 'symbol';
 var ifSymbolsDescribe = hasSymbols ? describe : describe.skip;
 var defaultRegex = (function () {
+  // Chrome Canary 51 has an undefined RegExp#toSource, and
+  // RegExp#toString produces `/undefined/`
   try {
-    return String(RegExp.prototype);
+    return RegExp.prototype.source ? String(RegExp.prototype) : '/(?:)/';
   } catch (e) {
     return '/(?:)/';
   }
@@ -352,7 +354,8 @@ describe('RegExp', function () {
     });
 
     describe('updates RegExp globals', function () {
-      var re, str = 'abcdefghijklmnopq';
+      var str = 'abcdefghijklmnopq';
+      var re;
       beforeEach(function () {
         re = /(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)(m)(n)(o)(p)/;
         re.exec(str);

@@ -4,6 +4,16 @@ An in-memory web api for Angular 2 demos and tests.
 See usage in the Angular.io
 [Server Communication](https://angular.io/docs/ts/latest/guide/server-communication.html) chapter.
 
+# Simple Query String Support
+Custom filters can be passed as a regex pattern via query string. 
+The query string defines which property and value to match against.
+
+Format: `/app/heroes/?propertyName=regexPattern`
+
+In the following example we are matching on all names containing the letter 'j' in the heroes collection.
+
+`/app/heroes/?name=j+`
+
 # To Do
 * add  documentation
 * add tests (shameful omission!)
@@ -32,6 +42,8 @@ compiling your application project.
   `npm run typings -- install packagename --ambient --save`
 
    **NB: Do not add to `npm postinstall` as that screws up consumers!**
+
+- `npm run typings install`
 
 - `npm run tsc` to confirm the project compiles w/o error (sanity check)
 

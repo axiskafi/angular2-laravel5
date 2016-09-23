@@ -1,4 +1,4 @@
-/*! is-windows v0.1.0 | MIT LICENSE (c) 2015 | https://github.com/jonschlinkert/is-windows */
+/*! is-windows v0.2.0 | MIT LICENSE (c) 2015 | https://github.com/jonschlinkert/is-windows */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD
@@ -8,7 +8,7 @@
     module.exports = factory;
   } else {
     // Browser
-    root.isWindows = factory();
+    root.isWindows = factory;
   }
 }(this, function () {
   'use strict';

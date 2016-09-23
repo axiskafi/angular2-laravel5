@@ -1,6 +1,7 @@
+import { ResponseOptions } from './base_response_options';
+import { Body } from './body';
 import { ResponseType } from './enums';
 import { Headers } from './headers';
-import { ResponseOptions } from './base_response_options';
 /**
  * Creates `Response` instances from provided values.
  *
@@ -18,8 +19,10 @@ import { ResponseOptions } from './base_response_options';
  * Spec](https://fetch.spec.whatwg.org/#response-class), but is considered a static value whose body
  * can be accessed many times. There are other differences in the implementation, but this is the
  * most significant.
+ *
+ * @experimental
  */
-export declare class Response {
+export declare class Response extends Body {
     /**
      * One of "basic", "cors", "default", "error, or "opaque".
      *
@@ -67,22 +70,6 @@ export declare class Response {
      * Spec](https://fetch.spec.whatwg.org/#headers-class).
      */
     headers: Headers;
-    private _body;
     constructor(responseOptions: ResponseOptions);
-    /**
-     * Not yet implemented
-     */
-    blob(): any;
-    /**
-     * Attempts to return body as parsed `JSON` object, or raises an exception.
-     */
-    json(): any;
-    /**
-     * Returns the body as a string, presuming `toString()` can be called on the response body.
-     */
-    text(): string;
-    /**
-     * Not yet implemented
-     */
-    arrayBuffer(): any;
+    toString(): string;
 }

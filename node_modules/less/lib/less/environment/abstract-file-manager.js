@@ -67,13 +67,13 @@ abstractFileManager.prototype.pathDiff = function pathDiff(url, baseUrl) {
 };
 // helper function, not part of API
 abstractFileManager.prototype.extractUrlParts = function extractUrlParts(url, baseUrl) {
-    // urlParts[1] = protocol&hostname || /
+    // urlParts[1] = protocol://hostname/ OR /
     // urlParts[2] = / if path relative to host base
     // urlParts[3] = directories
     // urlParts[4] = filename
     // urlParts[5] = parameters
 
-    var urlPartsRegex = /^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
+    var urlPartsRegex = /^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
         urlParts = url.match(urlPartsRegex),
         returner = {}, directories = [], i, baseUrlParts;
 

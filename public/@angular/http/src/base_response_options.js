@@ -1,13 +1,19 @@
-"use strict";
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var lang_1 = require('../src/facade/lang');
-var headers_1 = require('./headers');
-var enums_1 = require('./enums');
+import { Injectable } from '@angular/core';
+import { isPresent } from '../src/facade/lang';
+import { ResponseType } from './enums';
+import { Headers } from './headers';
 /**
  * Creates a response options object to be optionally provided when instantiating a
  * {@link Response}.
@@ -33,16 +39,18 @@ var enums_1 = require('./enums');
  *
  * console.log('res.json():', res.json()); // Object {name: "Jeff"}
  * ```
+ *
+ * @experimental
  */
-var ResponseOptions = (function () {
+export var ResponseOptions = (function () {
     function ResponseOptions(_a) {
         var _b = _a === void 0 ? {} : _a, body = _b.body, status = _b.status, headers = _b.headers, statusText = _b.statusText, type = _b.type, url = _b.url;
-        this.body = lang_1.isPresent(body) ? body : null;
-        this.status = lang_1.isPresent(status) ? status : null;
-        this.headers = lang_1.isPresent(headers) ? headers : null;
-        this.statusText = lang_1.isPresent(statusText) ? statusText : null;
-        this.type = lang_1.isPresent(type) ? type : null;
-        this.url = lang_1.isPresent(url) ? url : null;
+        this.body = isPresent(body) ? body : null;
+        this.status = isPresent(status) ? status : null;
+        this.headers = isPresent(headers) ? headers : null;
+        this.statusText = isPresent(statusText) ? statusText : null;
+        this.type = isPresent(type) ? type : null;
+        this.url = isPresent(url) ? url : null;
     }
     /**
      * Creates a copy of the `ResponseOptions` instance, using the optional input as values to
@@ -71,28 +79,73 @@ var ResponseOptions = (function () {
      */
     ResponseOptions.prototype.merge = function (options) {
         return new ResponseOptions({
-            body: lang_1.isPresent(options) && lang_1.isPresent(options.body) ? options.body : this.body,
-            status: lang_1.isPresent(options) && lang_1.isPresent(options.status) ? options.status : this.status,
-            headers: lang_1.isPresent(options) && lang_1.isPresent(options.headers) ? options.headers : this.headers,
-            statusText: lang_1.isPresent(options) && lang_1.isPresent(options.statusText) ? options.statusText :
+            body: isPresent(options) && isPresent(options.body) ? options.body : this.body,
+            status: isPresent(options) && isPresent(options.status) ? options.status : this.status,
+            headers: isPresent(options) && isPresent(options.headers) ? options.headers : this.headers,
+            statusText: isPresent(options) && isPresent(options.statusText) ? options.statusText :
                 this.statusText,
-            type: lang_1.isPresent(options) && lang_1.isPresent(options.type) ? options.type : this.type,
-            url: lang_1.isPresent(options) && lang_1.isPresent(options.url) ? options.url : this.url,
+            type: isPresent(options) && isPresent(options.type) ? options.type : this.type,
+            url: isPresent(options) && isPresent(options.url) ? options.url : this.url,
         });
     };
     return ResponseOptions;
 }());
-exports.ResponseOptions = ResponseOptions;
-var BaseResponseOptions = (function (_super) {
+/**
+ * Subclass of {@link ResponseOptions}, with default values.
+ *
+ * Default values:
+ *  * status: 200
+ *  * headers: empty {@link Headers} object
+ *
+ * This class could be extended and bound to the {@link ResponseOptions} class
+ * when configuring an {@link Injector}, in order to override the default options
+ * used by {@link Http} to create {@link Response Responses}.
+ *
+ * ### Example ([live demo](http://plnkr.co/edit/qv8DLT?p=preview))
+ *
+ * ```typescript
+ * import {provide} from '@angular/core';
+ * import {bootstrap} from '@angular/platform-browser/browser';
+ * import {HTTP_PROVIDERS, Headers, Http, BaseResponseOptions, ResponseOptions} from
+ * '@angular/http';
+ * import {App} from './myapp';
+ *
+ * class MyOptions extends BaseResponseOptions {
+ *   headers:Headers = new Headers({network: 'github'});
+ * }
+ *
+ * bootstrap(App, [HTTP_PROVIDERS, {provide: ResponseOptions, useClass: MyOptions}]);
+ * ```
+ *
+ * The options could also be extended when manually creating a {@link Response}
+ * object.
+ *
+ * ### Example ([live demo](http://plnkr.co/edit/VngosOWiaExEtbstDoix?p=preview))
+ *
+ * ```
+ * import {BaseResponseOptions, Response} from '@angular/http';
+ *
+ * var options = new BaseResponseOptions();
+ * var res = new Response(options.merge({
+ *   body: 'Angular',
+ *   headers: new Headers({framework: 'angular'})
+ * }));
+ * console.log('res.headers.get("framework"):', res.headers.get('framework')); // angular
+ * console.log('res.text():', res.text()); // Angular;
+ * ```
+ *
+ * @experimental
+ */
+export var BaseResponseOptions = (function (_super) {
     __extends(BaseResponseOptions, _super);
     function BaseResponseOptions() {
-        _super.call(this, { status: 200, statusText: 'Ok', type: enums_1.ResponseType.Default, headers: new headers_1.Headers() });
+        _super.call(this, { status: 200, statusText: 'Ok', type: ResponseType.Default, headers: new Headers() });
     }
     BaseResponseOptions.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
     BaseResponseOptions.ctorParameters = [];
     return BaseResponseOptions;
 }(ResponseOptions));
-exports.BaseResponseOptions = BaseResponseOptions;
 //# sourceMappingURL=base_response_options.js.map

@@ -72,4 +72,6 @@ test('types', function (t) {
                       , 'return $"hello"%; return #"world"%;')
     t.end()
   })
+
+  t.end()
 })

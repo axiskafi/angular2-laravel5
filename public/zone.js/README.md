@@ -4,6 +4,9 @@
 
 Implements _Zones_ for JavaScript, inspired by [Dart](https://www.dartlang.org/articles/zones/).
 
+> If you're using zone.js via unpkg please provide a query param `?main=browser`  
+`https://unpkg.com/zone.js?main=browser`
+
 # NEW Zone.js POST-v0.6.0
 
 See the new API [here](./dist/zone.js.d.ts).
@@ -25,15 +28,15 @@ You can run code within a zone with `zone.run`.
 Tasks scheduled (with `setTimeout`, `setInterval`, or event listeners) stay within that zone.
 
 ```javascript
-zone.fork().run(function () {
-  zone.inTheZone = true;
+Zone.current.fork({}).run(function () {
+    Zone.current.inTheZone = true;
 
-  setTimeout(function () {
-    console.log('in the zone: ' + !!zone.inTheZone);
-  }, 0);
+    setTimeout(function () {
+        console.log('in the zone: ' + !!Zone.current.inTheZone);
+    }, 0);
 });
 
-console.log('in the zone: ' + !!zone.inTheZone);
+console.log('in the zone: ' + !!Zone.current.inTheZone);
 ```
 
 The above will log:

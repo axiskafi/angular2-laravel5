@@ -54,4 +54,5 @@ test('function - config passing idx and tokens', function (t) {
       }
     t.end()
   })
+  t.end()
 })

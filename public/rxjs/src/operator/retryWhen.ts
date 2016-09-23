@@ -1,14 +1,14 @@
-import {Operator} from '../Operator';
-import {Subscriber} from '../Subscriber';
-import {Observable} from '../Observable';
-import {Subject} from '../Subject';
-import {Subscription} from '../Subscription';
-import {tryCatch} from '../util/tryCatch';
-import {errorObject} from '../util/errorObject';
+import { Operator } from '../Operator';
+import { Subscriber } from '../Subscriber';
+import { Observable } from '../Observable';
+import { Subject } from '../Subject';
+import { Subscription, TeardownLogic } from '../Subscription';
+import { tryCatch } from '../util/tryCatch';
+import { errorObject } from '../util/errorObject';
 
-import {OuterSubscriber} from '../OuterSubscriber';
-import {InnerSubscriber} from '../InnerSubscriber';
-import {subscribeToResult} from '../util/subscribeToResult';
+import { OuterSubscriber } from '../OuterSubscriber';
+import { InnerSubscriber } from '../InnerSubscriber';
+import { subscribeToResult } from '../util/subscribeToResult';
 
 /**
  * Returns an Observable that emits the same values as the source observable with the exception of an `error`.
@@ -39,7 +39,7 @@ class RetryWhenOperator<T> implements Operator<T, T> {
               protected source: Observable<T>) {
   }
 
-  call(subscriber: Subscriber<T>, source: any): any {
+  call(subscriber: Subscriber<T>, source: any): TeardownLogic {
     return source._subscribe(new RetryWhenSubscriber(subscriber, this.notifier, this.source));
   }
 }
@@ -81,7 +81,7 @@ class RetryWhenSubscriber<T, R> extends OuterSubscriber<T, R> {
       }
 
       this.unsubscribe();
-      this.isUnsubscribed = false;
+      this.closed = false;
 
       this.errors = errors;
       this.retries = retries;
@@ -115,7 +115,7 @@ class RetryWhenSubscriber<T, R> extends OuterSubscriber<T, R> {
 
     this.unsubscribe();
     this.isStopped = false;
-    this.isUnsubscribed = false;
+    this.closed = false;
 
     this.errors = errors;
     this.retries = retries;

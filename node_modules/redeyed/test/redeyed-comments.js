@@ -40,6 +40,8 @@ test('\nstring config, Line comments', function (t) {
     )
     t.end()
   })
+
+  t.end()
 })
 
 test('\nstring config, Block comments', function (t) {
@@ -68,4 +70,6 @@ test('\nstring config, Block comments', function (t) {
     )
     t.end()
   })
+
+  t.end()
 })

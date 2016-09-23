@@ -6,7 +6,7 @@ var test = require('tap').test
   , util = require('util')
   , redeyedExport = require('..')
   , redeyedkey = require.resolve('..')
-  , esprima = require('esprima-fb')
+  , esprima = require('esprima')
 
 function setup() {
   // remove redeyed from require cache to force re-require for each test

@@ -43,4 +43,6 @@ test('\nmixed config, keywords', function (t) {
   t.test('\n# ' + inspect(opts002), function (t) {
    t.assertSurrounds('if (this.hello) return "world";', opts002, '^if& (_this.hello) *return) "world";').end()
   })
+
+  t.end()
 })

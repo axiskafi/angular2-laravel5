@@ -12,12 +12,12 @@ var /*istanbul ignore next*/_babelHelperFunctionName = require("babel-helper-fun
 /*istanbul ignore next*/
 var _babelHelperFunctionName2 = _interopRequireDefault(_babelHelperFunctionName);
 
-var /*istanbul ignore next*/_each = require("lodash/collection/each");
+var /*istanbul ignore next*/_each = require("lodash/each");
 
 /*istanbul ignore next*/
 var _each2 = _interopRequireDefault(_each);
 
-var /*istanbul ignore next*/_has = require("lodash/object/has");
+var /*istanbul ignore next*/_has = require("lodash/has");
 
 /*istanbul ignore next*/
 var _has2 = _interopRequireDefault(_has);

@@ -4,7 +4,7 @@ exports.__esModule = true;
 exports.is = is;
 /*istanbul ignore next*/exports.pullFlag = pullFlag;
 
-var /*istanbul ignore next*/_pull = require("lodash/array/pull");
+var /*istanbul ignore next*/_pull = require("lodash/pull");
 
 /*istanbul ignore next*/
 var _pull2 = _interopRequireDefault(_pull);

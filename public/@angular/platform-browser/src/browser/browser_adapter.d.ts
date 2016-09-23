@@ -1,6 +1,9 @@
 import { GenericBrowserDomAdapter } from './generic_browser_adapter';
 /**
  * A `DomAdapter` powered by full browser DOM APIs.
+ *
+ * @security Tread carefully! Interacting with the DOM directly is dangerous and
+ * can introduce XSS risks.
  */
 export declare class BrowserDomAdapter extends GenericBrowserDomAdapter {
     parse(templateHtml: string): void;
@@ -25,6 +28,7 @@ export declare class BrowserDomAdapter extends GenericBrowserDomAdapter {
     preventDefault(evt: Event): void;
     isPrevented(evt: Event): boolean;
     getInnerHTML(el: any): string;
+    getTemplateContent(el: any): Node;
     getOuterHTML(el: any): string;
     nodeName(node: Node): string;
     nodeValue(node: Node): string;
@@ -108,7 +112,10 @@ export declare class BrowserDomAdapter extends GenericBrowserDomAdapter {
     getData(element: any, name: string): string;
     getComputedStyle(element: any): any;
     setGlobalVar(path: string, value: any): void;
-    requestAnimationFrame(callback: any): number;
-    cancelAnimationFrame(id: number): void;
+    supportsWebAnimation(): boolean;
     performanceNow(): number;
+    supportsCookies(): boolean;
+    getCookie(name: string): string;
+    setCookie(name: string, value: string): void;
 }
+export declare function parseCookieValue(cookieStr: string, name: string): string;

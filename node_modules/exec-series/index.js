@@ -8,6 +8,9 @@
 var exec = require('child_process').exec;
 
 var eachSeries = require('async-each-series');
+var objectAssign = require('object-assign');
+
+var TEN_MEBIBYTE = 1024 * 1024 * 10;
 
 module.exports = function execSeries(commands, options, cb) {
   if (!Array.isArray(commands)) {
@@ -33,7 +36,7 @@ module.exports = function execSeries(commands, options, cb) {
   var stderrs = [];
 
   eachSeries(commands, function(command, next) {
-    exec(command, options, function(err, stdout, stderr) {
+    exec(command, objectAssign({maxBuffer: TEN_MEBIBYTE}, options), function(err, stdout, stderr) {
       stdouts.push(stdout);
       stderrs.push(stderr);
       next(err);

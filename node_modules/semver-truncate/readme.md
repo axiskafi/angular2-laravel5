@@ -5,7 +5,7 @@
 
 ## Install
 
-```sh
+```
 $ npm install --save semver-truncate
 ```
 
@@ -13,7 +13,7 @@ $ npm install --save semver-truncate
 ## Usage
 
 ```js
-var semverTruncate = require('semver-truncate');
+const semverTruncate = require('semver-truncate');
 
 semverTruncate('1.2.3-foo', 'patch');
 //=> '1.2.3'
@@ -32,20 +32,18 @@ semverTruncate('1.2.3', 'major');
 
 #### version
 
-*Required*  
 Type: `string`
 
 Semver version.
 
 #### type
 
-*Required*  
 Type: `string`  
-Values: `'patch'`, `'minor'`, `'major'`
+Values: `patch` `minor` `major`
 
-The version type you want to truncate to.
+Version type to truncate to.
 
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](https://sindresorhus.com)

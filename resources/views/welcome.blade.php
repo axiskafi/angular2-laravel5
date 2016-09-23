@@ -36,6 +36,9 @@
         </style>
         <base href="./">
         {{ Html::style('css/styles.css') }}
+
+    
+
     <!-- Load libraries -->
     <!-- IE required polyfills, in this exact order -->
     {{ Html::script('es6-shim/es6-shim.min.js') }}
@@ -77,18 +80,10 @@
                 .then(null, console.error.bind(console));
     </script>
     -->
+
+ 
     <script>
-    System.config({
-            "defaultJSExtensions": true,
-            packages: {
-                app: {
-                    format: 'register',
-                    defaultExtension: 'js'
-                }
-            }
-        });
-      System.import('js/boot')
-                .then(null, console.error.bind(console));
+      System.import('app').catch(function(err){ console.error(err); });
     </script>
     </head>
     <body>

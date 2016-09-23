@@ -51,4 +51,6 @@ test('\nbefore/after config, keywords', function (t) {
         ].join('\n'))
     t.end()
   })
+
+  t.end()
 })

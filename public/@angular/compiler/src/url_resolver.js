@@ -1,26 +1,46 @@
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../src/facade/lang');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Inject, Injectable, PACKAGE_ROOT_URL } from '@angular/core';
+import { StringWrapper, isBlank, isPresent } from './facade/lang';
 var _ASSET_SCHEME = 'asset:';
 /**
  * Create a {@link UrlResolver} with no package prefix.
  */
-function createUrlResolverWithoutPackagePrefix() {
+export function createUrlResolverWithoutPackagePrefix() {
     return new UrlResolver();
 }
-exports.createUrlResolverWithoutPackagePrefix = createUrlResolverWithoutPackagePrefix;
-function createOfflineCompileUrlResolver() {
+export function createOfflineCompileUrlResolver() {
     return new UrlResolver(_ASSET_SCHEME);
 }
-exports.createOfflineCompileUrlResolver = createOfflineCompileUrlResolver;
 /**
  * A default provider for {@link PACKAGE_ROOT_URL} that maps to '/'.
  */
-exports.DEFAULT_PACKAGE_URL_PROVIDER = {
-    provide: core_1.PACKAGE_ROOT_URL,
-    useValue: "/"
+export var DEFAULT_PACKAGE_URL_PROVIDER = {
+    provide: PACKAGE_ROOT_URL,
+    useValue: '/'
 };
-var UrlResolver = (function () {
+/**
+ * Used by the {@link Compiler} when resolving HTML and CSS template URLs.
+ *
+ * This class can be overridden by the application developer to create custom behavior.
+ *
+ * See {@link Compiler}
+ *
+ * ## Example
+ *
+ * {@example compiler/ts/url_resolver/url_resolver.ts region='url_resolver'}
+ *
+ * @security  When compiling templates at runtime, you must
+ * ensure that the entire template comes from a trusted source.
+ * Attacker-controlled data introduced by a template could expose your
+ * application to XSS risks. For more detail, see the [Security Guide](http://g.co/ng/security).
+ */
+export var UrlResolver = (function () {
     function UrlResolver(_packagePrefix) {
         if (_packagePrefix === void 0) { _packagePrefix = null; }
         this._packagePrefix = _packagePrefix;
@@ -32,50 +52,45 @@ var UrlResolver = (function () {
      * `baseUrl` and `url`,
      * - if `url` is absolute (it has a scheme: 'http://', 'https://' or start with '/'), the `url` is
      * returned as is (ignoring the `baseUrl`)
-     *
-     * @param {string} baseUrl
-     * @param {string} url
-     * @returns {string} the resolved URL
      */
     UrlResolver.prototype.resolve = function (baseUrl, url) {
         var resolvedUrl = url;
-        if (lang_1.isPresent(baseUrl) && baseUrl.length > 0) {
+        if (isPresent(baseUrl) && baseUrl.length > 0) {
             resolvedUrl = _resolveUrl(baseUrl, resolvedUrl);
         }
         var resolvedParts = _split(resolvedUrl);
         var prefix = this._packagePrefix;
-        if (lang_1.isPresent(prefix) && lang_1.isPresent(resolvedParts) &&
-            resolvedParts[_ComponentIndex.Scheme] == "package") {
+        if (isPresent(prefix) && isPresent(resolvedParts) &&
+            resolvedParts[_ComponentIndex.Scheme] == 'package') {
             var path = resolvedParts[_ComponentIndex.Path];
             if (this._packagePrefix === _ASSET_SCHEME) {
                 var pathSegements = path.split(/\//);
                 resolvedUrl = "asset:" + pathSegements[0] + "/lib/" + pathSegements.slice(1).join('/');
             }
             else {
-                prefix = lang_1.StringWrapper.stripRight(prefix, '/');
-                path = lang_1.StringWrapper.stripLeft(path, '/');
+                prefix = StringWrapper.stripRight(prefix, '/');
+                path = StringWrapper.stripLeft(path, '/');
                 return prefix + "/" + path;
             }
         }
         return resolvedUrl;
     };
     UrlResolver.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
     UrlResolver.ctorParameters = [
-        { type: undefined, decorators: [{ type: core_1.Inject, args: [core_1.PACKAGE_ROOT_URL,] },] },
+        { type: undefined, decorators: [{ type: Inject, args: [PACKAGE_ROOT_URL,] },] },
     ];
     return UrlResolver;
 }());
-exports.UrlResolver = UrlResolver;
 /**
  * Extract the scheme of a URL.
  */
-function getUrlScheme(url) {
+export function getUrlScheme(url) {
     var match = _split(url);
-    return (match && match[_ComponentIndex.Scheme]) || "";
+    return (match && match[_ComponentIndex.Scheme]) || '';
 }
-exports.getUrlScheme = getUrlScheme;
 // The code below is adapted from Traceur:
 // https://github.com/google/traceur-compiler/blob/9511c1dafa972bf0de1202a8a863bad02f0f95a8/src/runtime/url.js
 /**
@@ -84,39 +99,39 @@ exports.getUrlScheme = getUrlScheme;
  * No encoding is performed.  Any component may be omitted as either null or
  * undefined.
  *
- * @param {?string=} opt_scheme The scheme such as 'http'.
- * @param {?string=} opt_userInfo The user name before the '@'.
- * @param {?string=} opt_domain The domain such as 'www.google.com', already
+ * @param opt_scheme The scheme such as 'http'.
+ * @param opt_userInfo The user name before the '@'.
+ * @param opt_domain The domain such as 'www.google.com', already
  *     URI-encoded.
- * @param {(string|null)=} opt_port The port number.
- * @param {?string=} opt_path The path, already URI-encoded.  If it is not
+ * @param opt_port The port number.
+ * @param opt_path The path, already URI-encoded.  If it is not
  *     empty, it must begin with a slash.
- * @param {?string=} opt_queryData The URI-encoded query data.
- * @param {?string=} opt_fragment The URI-encoded fragment identifier.
- * @return {string} The fully combined URI.
+ * @param opt_queryData The URI-encoded query data.
+ * @param opt_fragment The URI-encoded fragment identifier.
+ * @return The fully combined URI.
  */
 function _buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
     var out = [];
-    if (lang_1.isPresent(opt_scheme)) {
+    if (isPresent(opt_scheme)) {
         out.push(opt_scheme + ':');
     }
-    if (lang_1.isPresent(opt_domain)) {
+    if (isPresent(opt_domain)) {
         out.push('//');
-        if (lang_1.isPresent(opt_userInfo)) {
+        if (isPresent(opt_userInfo)) {
             out.push(opt_userInfo + '@');
         }
         out.push(opt_domain);
-        if (lang_1.isPresent(opt_port)) {
+        if (isPresent(opt_port)) {
             out.push(':' + opt_port);
         }
     }
-    if (lang_1.isPresent(opt_path)) {
+    if (isPresent(opt_path)) {
         out.push(opt_path);
     }
-    if (lang_1.isPresent(opt_queryData)) {
+    if (isPresent(opt_queryData)) {
         out.push('?' + opt_queryData);
     }
-    if (lang_1.isPresent(opt_fragment)) {
+    if (isPresent(opt_fragment)) {
         out.push('#' + opt_fragment);
     }
     return out.join('');
@@ -183,7 +198,7 @@ function _buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, 
  * @type {!RegExp}
  * @internal
  */
-var _splitRe = lang_1.RegExpWrapper.create('^' +
+var _splitRe = new RegExp('^' +
     '(?:' +
     '([^:/?#.]+)' +
     // used by other URL parts such as :,
@@ -222,22 +237,22 @@ var _ComponentIndex;
  * goog.uri.utils.split(someStr)[goog.uri.utils.CompontentIndex.QUERY_DATA];
  * </pre>
  *
- * @param {string} uri The URI string to examine.
- * @return {!Array.<string|undefined>} Each component still URI-encoded.
+ * @param uri The URI string to examine.
+ * @return Each component still URI-encoded.
  *     Each component that is present will contain the encoded value, whereas
  *     components that are not present will be undefined or empty, depending
  *     on the browser's regular expression implementation.  Never null, since
  *     arbitrary strings may still look like path names.
  */
 function _split(uri) {
-    return lang_1.RegExpWrapper.firstMatch(_splitRe, uri);
+    return uri.match(_splitRe);
 }
 /**
   * Removes dot segments in given path component, as described in
   * RFC 3986, section 5.2.4.
   *
-  * @param {string} path A non-empty path component.
-  * @return {string} Path component with removed dot segments.
+  * @param path A non-empty path component.
+  * @return Path component with removed dot segments.
   */
 function _removeDotSegments(path) {
     if (path == '/')
@@ -277,32 +292,29 @@ function _removeDotSegments(path) {
 /**
  * Takes an array of the parts from split and canonicalizes the path part
  * and then joins all the parts.
- * @param {Array.<string?>} parts
- * @return {string}
  */
 function _joinAndCanonicalizePath(parts) {
     var path = parts[_ComponentIndex.Path];
-    path = lang_1.isBlank(path) ? '' : _removeDotSegments(path);
+    path = isBlank(path) ? '' : _removeDotSegments(path);
     parts[_ComponentIndex.Path] = path;
     return _buildFromEncodedParts(parts[_ComponentIndex.Scheme], parts[_ComponentIndex.UserInfo], parts[_ComponentIndex.Domain], parts[_ComponentIndex.Port], path, parts[_ComponentIndex.QueryData], parts[_ComponentIndex.Fragment]);
 }
 /**
  * Resolves a URL.
- * @param {string} base The URL acting as the base URL.
- * @param {string} to The URL to resolve.
- * @return {string}
+ * @param base The URL acting as the base URL.
+ * @param to The URL to resolve.
  */
 function _resolveUrl(base, url) {
     var parts = _split(encodeURI(url));
     var baseParts = _split(base);
-    if (lang_1.isPresent(parts[_ComponentIndex.Scheme])) {
+    if (isPresent(parts[_ComponentIndex.Scheme])) {
         return _joinAndCanonicalizePath(parts);
     }
     else {
         parts[_ComponentIndex.Scheme] = baseParts[_ComponentIndex.Scheme];
     }
     for (var i = _ComponentIndex.Scheme; i <= _ComponentIndex.Port; i++) {
-        if (lang_1.isBlank(parts[i])) {
+        if (isBlank(parts[i])) {
             parts[i] = baseParts[i];
         }
     }
@@ -310,7 +322,7 @@ function _resolveUrl(base, url) {
         return _joinAndCanonicalizePath(parts);
     }
     var path = baseParts[_ComponentIndex.Path];
-    if (lang_1.isBlank(path))
+    if (isBlank(path))
         path = '/';
     var index = path.lastIndexOf('/');
     path = path.substring(0, index + 1) + parts[_ComponentIndex.Path];

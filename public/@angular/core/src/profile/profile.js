@@ -1,10 +1,15 @@
-"use strict";
-var impl = require('./wtf_impl');
-// Change exports to const once https://github.com/angular/ts2dart/issues/150
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { createScope, detectWTF, endTimeRange, leave, startTimeRange } from './wtf_impl';
 /**
  * True if WTF is enabled.
  */
-exports.wtfEnabled = impl.detectWTF();
+export var wtfEnabled = detectWTF();
 function noopScope(arg0, arg1) {
     return null;
 }
@@ -36,8 +41,9 @@ function noopScope(arg0, arg1) {
  * needs to be fixed before the app should be profiled. Add try-finally only when you expect that
  * an exception is expected during normal execution while profiling.
  *
+ * @experimental
  */
-exports.wtfCreateScope = exports.wtfEnabled ? impl.createScope : function (signature, flags) { return noopScope; };
+export var wtfCreateScope = wtfEnabled ? createScope : function (signature, flags) { return noopScope; };
 /**
  * Used to mark end of Scope.
  *
@@ -45,8 +51,9 @@ exports.wtfCreateScope = exports.wtfEnabled ? impl.createScope : function (signa
  * - `returnValue` (optional) to be passed to the WTF.
  *
  * Returns the `returnValue for easy chaining.
+ * @experimental
  */
-exports.wtfLeave = exports.wtfEnabled ? impl.leave : function (s, r) { return r; };
+export var wtfLeave = wtfEnabled ? leave : function (s, r) { return r; };
 /**
  * Used to mark Async start. Async are similar to scope but they don't have to be strictly nested.
  * The return value is used in the call to [endAsync]. Async ranges only work if WTF has been
@@ -58,14 +65,14 @@ exports.wtfLeave = exports.wtfEnabled ? impl.leave : function (s, r) { return r;
  *          wtfEndTimeRange(s);
  *        });
  *     }
+ * @experimental
  */
-exports.wtfStartTimeRange = exports.wtfEnabled ? impl.startTimeRange : function (rangeType, action) { return null; };
+export var wtfStartTimeRange = wtfEnabled ? startTimeRange : function (rangeType, action) { return null; };
 /**
  * Ends a async time range operation.
  * [range] is the return value from [wtfStartTimeRange] Async ranges only work if WTF has been
  * enabled.
+ * @experimental
  */
-exports.wtfEndTimeRange = exports.wtfEnabled ? impl.endTimeRange : function (r) {
-    return null;
-};
+export var wtfEndTimeRange = wtfEnabled ? endTimeRange : function (r) { return null; };
 //# sourceMappingURL=profile.js.map

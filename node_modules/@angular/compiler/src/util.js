@@ -1,47 +1,42 @@
-"use strict";
-var lang_1 = require('./facade/lang');
-var collection_1 = require('./facade/collection');
-exports.MODULE_SUFFIX = lang_1.IS_DART ? '.dart' : '';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { StringMapWrapper } from './facade/collection';
+import { StringWrapper, isArray, isBlank, isPresent, isPrimitive, isStrictStringMap } from './facade/lang';
+import * as o from './output/output_ast';
+export var MODULE_SUFFIX = '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
-var DASH_CASE_REGEXP = /-([a-z])/g;
-function camelCaseToDashCase(input) {
-    return lang_1.StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m) { return '-' + m[1].toLowerCase(); });
+export function camelCaseToDashCase(input) {
+    return StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m) { return '-' + m[1].toLowerCase(); });
 }
-exports.camelCaseToDashCase = camelCaseToDashCase;
-function dashCaseToCamelCase(input) {
-    return lang_1.StringWrapper.replaceAllMapped(input, DASH_CASE_REGEXP, function (m) { return m[1].toUpperCase(); });
-}
-exports.dashCaseToCamelCase = dashCaseToCamelCase;
-function splitAtColon(input, defaultValues) {
-    var parts = lang_1.StringWrapper.split(input.trim(), /\s*:\s*/g);
-    if (parts.length > 1) {
-        return parts;
-    }
-    else {
+export function splitAtColon(input, defaultValues) {
+    var colonIndex = input.indexOf(':');
+    if (colonIndex == -1)
         return defaultValues;
-    }
+    return [input.slice(0, colonIndex).trim(), input.slice(colonIndex + 1).trim()];
 }
-exports.splitAtColon = splitAtColon;
-function sanitizeIdentifier(name) {
-    return lang_1.StringWrapper.replaceAll(name, /\W/g, '_');
+export function sanitizeIdentifier(name) {
+    return StringWrapper.replaceAll(name, /\W/g, '_');
 }
-exports.sanitizeIdentifier = sanitizeIdentifier;
-function visitValue(value, visitor, context) {
-    if (lang_1.isArray(value)) {
+export function visitValue(value, visitor, context) {
+    if (isArray(value)) {
         return visitor.visitArray(value, context);
     }
-    else if (lang_1.isStrictStringMap(value)) {
+    else if (isStrictStringMap(value)) {
         return visitor.visitStringMap(value, context);
     }
-    else if (lang_1.isBlank(value) || lang_1.isPrimitive(value)) {
+    else if (isBlank(value) || isPrimitive(value)) {
         return visitor.visitPrimitive(value, context);
     }
     else {
         return visitor.visitOther(value, context);
     }
 }
-exports.visitValue = visitValue;
-var ValueTransformer = (function () {
+export var ValueTransformer = (function () {
     function ValueTransformer() {
     }
     ValueTransformer.prototype.visitArray = function (arr, context) {
@@ -51,33 +46,46 @@ var ValueTransformer = (function () {
     ValueTransformer.prototype.visitStringMap = function (map, context) {
         var _this = this;
         var result = {};
-        collection_1.StringMapWrapper.forEach(map, function (value, key) { result[key] = visitValue(value, _this, context); });
+        StringMapWrapper.forEach(map, function (value /** TODO #9100 */, key /** TODO #9100 */) {
+            result[key] = visitValue(value, _this, context);
+        });
         return result;
     };
     ValueTransformer.prototype.visitPrimitive = function (value, context) { return value; };
     ValueTransformer.prototype.visitOther = function (value, context) { return value; };
     return ValueTransformer;
 }());
-exports.ValueTransformer = ValueTransformer;
-function assetUrl(pkg, path, type) {
+export function assetUrl(pkg, path, type) {
     if (path === void 0) { path = null; }
     if (type === void 0) { type = 'src'; }
-    if (lang_1.IS_DART) {
-        if (path == null) {
-            return "asset:angular2/" + pkg + "/" + pkg + ".dart";
-        }
-        else {
-            return "asset:angular2/lib/" + pkg + "/src/" + path + ".dart";
-        }
+    if (path == null) {
+        return "asset:@angular/lib/" + pkg + "/index";
     }
     else {
-        if (path == null) {
-            return "asset:@angular/lib/" + pkg + "/index";
-        }
-        else {
-            return "asset:@angular/lib/" + pkg + "/src/" + path;
-        }
+        return "asset:@angular/lib/" + pkg + "/src/" + path;
     }
 }
-exports.assetUrl = assetUrl;
+export function createDiTokenExpression(token) {
+    if (isPresent(token.value)) {
+        return o.literal(token.value);
+    }
+    else if (token.identifierIsInstance) {
+        return o.importExpr(token.identifier)
+            .instantiate([], o.importType(token.identifier, [], [o.TypeModifier.Const]));
+    }
+    else {
+        return o.importExpr(token.identifier);
+    }
+}
+export var SyncAsyncResult = (function () {
+    function SyncAsyncResult(syncResult, asyncResult) {
+        if (asyncResult === void 0) { asyncResult = null; }
+        this.syncResult = syncResult;
+        this.asyncResult = asyncResult;
+        if (!asyncResult) {
+            this.asyncResult = Promise.resolve(syncResult);
+        }
+    }
+    return SyncAsyncResult;
+}());
 //# sourceMappingURL=util.js.map

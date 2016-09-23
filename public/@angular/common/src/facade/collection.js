@@ -1,19 +1,25 @@
-"use strict";
-var lang_1 = require('./lang');
-exports.Map = lang_1.global.Map;
-exports.Set = lang_1.global.Set;
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { getSymbolIterator, global, isArray, isBlank, isJsObject, isPresent } from './lang';
+export var Map = global.Map;
+export var Set = global.Set;
 // Safari and Internet Explorer do not support the iterable parameter to the
 // Map constructor.  We work around that by manually adding the items.
 var createMapFromPairs = (function () {
     try {
-        if (new exports.Map([[1, 2]]).size === 1) {
-            return function createMapFromPairs(pairs) { return new exports.Map(pairs); };
+        if (new Map([[1, 2]]).size === 1) {
+            return function createMapFromPairs(pairs) { return new Map(pairs); };
         }
     }
     catch (e) {
     }
     return function createMapAndPopulateFromPairs(pairs) {
-        var map = new exports.Map();
+        var map = new Map();
         for (var i = 0; i < pairs.length; i++) {
             var pair = pairs[i];
             map.set(pair[0], pair[1]);
@@ -23,20 +29,20 @@ var createMapFromPairs = (function () {
 })();
 var createMapFromMap = (function () {
     try {
-        if (new exports.Map(new exports.Map())) {
-            return function createMapFromMap(m) { return new exports.Map(m); };
+        if (new Map(new Map())) {
+            return function createMapFromMap(m) { return new Map(m); };
         }
     }
     catch (e) {
     }
     return function createMapAndPopulateFromMap(m) {
-        var map = new exports.Map();
+        var map = new Map();
         m.forEach(function (v, k) { map.set(k, v); });
         return map;
     };
 })();
 var _clearValues = (function () {
-    if ((new exports.Map()).keys().next) {
+    if ((new Map()).keys().next) {
         return function _clearValues(m) {
             var keyIterator = m.keys();
             var k;
@@ -55,7 +61,7 @@ var _clearValues = (function () {
 // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
 var _arrayFromMap = (function () {
     try {
-        if ((new exports.Map()).values().next) {
+        if ((new Map()).values().next) {
             return function createArrayFromMap(m, getValues) {
                 return getValues ? Array.from(m.values()) : Array.from(m.keys());
             };
@@ -72,12 +78,12 @@ var _arrayFromMap = (function () {
         return res;
     };
 })();
-var MapWrapper = (function () {
+export var MapWrapper = (function () {
     function MapWrapper() {
     }
     MapWrapper.clone = function (m) { return createMapFromMap(m); };
     MapWrapper.createFromStringMap = function (stringMap) {
-        var result = new exports.Map();
+        var result = new Map();
         for (var prop in stringMap) {
             result.set(prop, stringMap[prop]);
         }
@@ -95,11 +101,10 @@ var MapWrapper = (function () {
     MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
     return MapWrapper;
 }());
-exports.MapWrapper = MapWrapper;
 /**
  * Wraps Javascript Objects
  */
-var StringMapWrapper = (function () {
+export var StringMapWrapper = (function () {
     function StringMapWrapper() {
     }
     StringMapWrapper.create = function () {
@@ -117,10 +122,7 @@ var StringMapWrapper = (function () {
     StringMapWrapper.set = function (map, key, value) { map[key] = value; };
     StringMapWrapper.keys = function (map) { return Object.keys(map); };
     StringMapWrapper.values = function (map) {
-        return Object.keys(map).reduce(function (r, a) {
-            r.push(map[a]);
-            return r;
-        }, []);
+        return Object.keys(map).map(function (k) { return map[k]; });
     };
     StringMapWrapper.isEmpty = function (map) {
         for (var prop in map) {
@@ -130,23 +132,20 @@ var StringMapWrapper = (function () {
     };
     StringMapWrapper.delete = function (map, key) { delete map[key]; };
     StringMapWrapper.forEach = function (map, callback) {
-        for (var prop in map) {
-            if (map.hasOwnProperty(prop)) {
-                callback(map[prop], prop);
-            }
+        for (var _i = 0, _a = Object.keys(map); _i < _a.length; _i++) {
+            var k = _a[_i];
+            callback(map[k], k);
         }
     };
     StringMapWrapper.merge = function (m1, m2) {
         var m = {};
-        for (var attr in m1) {
-            if (m1.hasOwnProperty(attr)) {
-                m[attr] = m1[attr];
-            }
+        for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
+            var k = _a[_i];
+            m[k] = m1[k];
         }
-        for (var attr in m2) {
-            if (m2.hasOwnProperty(attr)) {
-                m[attr] = m2[attr];
-            }
+        for (var _b = 0, _c = Object.keys(m2); _b < _c.length; _b++) {
+            var k = _c[_b];
+            m[k] = m2[k];
         }
         return m;
     };
@@ -156,9 +155,8 @@ var StringMapWrapper = (function () {
         if (k1.length != k2.length) {
             return false;
         }
-        var key;
         for (var i = 0; i < k1.length; i++) {
-            key = k1[i];
+            var key = k1[i];
             if (m1[key] !== m2[key]) {
                 return false;
             }
@@ -167,8 +165,7 @@ var StringMapWrapper = (function () {
     };
     return StringMapWrapper;
 }());
-exports.StringMapWrapper = StringMapWrapper;
-var ListWrapper = (function () {
+export var ListWrapper = (function () {
     function ListWrapper() {
     }
     // JS has no way to express a statically fixed size list, but dart does so we
@@ -244,7 +241,7 @@ var ListWrapper = (function () {
     };
     ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
     ListWrapper.sort = function (l, compareFn) {
-        if (lang_1.isPresent(compareFn)) {
+        if (isPresent(compareFn)) {
             l.sort(compareFn);
         }
         else {
@@ -261,7 +258,7 @@ var ListWrapper = (function () {
         var maxValue = -Infinity;
         for (var index = 0; index < list.length; index++) {
             var candidate = list[index];
-            if (lang_1.isBlank(candidate)) {
+            if (isBlank(candidate)) {
                 continue;
             }
             var candidateValue = predicate(candidate);
@@ -284,12 +281,11 @@ var ListWrapper = (function () {
     };
     return ListWrapper;
 }());
-exports.ListWrapper = ListWrapper;
 function _flattenArray(source, target) {
-    if (lang_1.isPresent(source)) {
+    if (isPresent(source)) {
         for (var i = 0; i < source.length; i++) {
             var item = source[i];
-            if (lang_1.isArray(item)) {
+            if (isArray(item)) {
                 _flattenArray(item, target);
             }
             else {
@@ -299,17 +295,16 @@ function _flattenArray(source, target) {
     }
     return target;
 }
-function isListLikeIterable(obj) {
-    if (!lang_1.isJsObject(obj))
+export function isListLikeIterable(obj) {
+    if (!isJsObject(obj))
         return false;
-    return lang_1.isArray(obj) ||
-        (!(obj instanceof exports.Map) &&
-            lang_1.getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
+    return isArray(obj) ||
+        (!(obj instanceof Map) &&
+            getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
 }
-exports.isListLikeIterable = isListLikeIterable;
-function areIterablesEqual(a, b, comparator) {
-    var iterator1 = a[lang_1.getSymbolIterator()]();
-    var iterator2 = b[lang_1.getSymbolIterator()]();
+export function areIterablesEqual(a, b, comparator) {
+    var iterator1 = a[getSymbolIterator()]();
+    var iterator2 = b[getSymbolIterator()]();
     while (true) {
         var item1 = iterator1.next();
         var item2 = iterator2.next();
@@ -321,32 +316,30 @@ function areIterablesEqual(a, b, comparator) {
             return false;
     }
 }
-exports.areIterablesEqual = areIterablesEqual;
-function iterateListLike(obj, fn) {
-    if (lang_1.isArray(obj)) {
+export function iterateListLike(obj, fn) {
+    if (isArray(obj)) {
         for (var i = 0; i < obj.length; i++) {
             fn(obj[i]);
         }
     }
     else {
-        var iterator = obj[lang_1.getSymbolIterator()]();
+        var iterator = obj[getSymbolIterator()]();
         var item;
         while (!((item = iterator.next()).done)) {
             fn(item.value);
         }
     }
 }
-exports.iterateListLike = iterateListLike;
 // Safari and Internet Explorer do not support the iterable parameter to the
 // Set constructor.  We work around that by manually adding the items.
 var createSetFromList = (function () {
-    var test = new exports.Set([1, 2, 3]);
+    var test = new Set([1, 2, 3]);
     if (test.size === 3) {
-        return function createSetFromList(lst) { return new exports.Set(lst); };
+        return function createSetFromList(lst) { return new Set(lst); };
     }
     else {
         return function createSetAndPopulateFromList(lst) {
-            var res = new exports.Set(lst);
+            var res = new Set(lst);
             if (res.size !== lst.length) {
                 for (var i = 0; i < lst.length; i++) {
                     res.add(lst[i]);
@@ -356,7 +349,7 @@ var createSetFromList = (function () {
         };
     }
 })();
-var SetWrapper = (function () {
+export var SetWrapper = (function () {
     function SetWrapper() {
     }
     SetWrapper.createFromList = function (lst) { return createSetFromList(lst); };
@@ -364,5 +357,4 @@ var SetWrapper = (function () {
     SetWrapper.delete = function (m, k) { m.delete(k); };
     return SetWrapper;
 }());
-exports.SetWrapper = SetWrapper;
 //# sourceMappingURL=collection.js.map

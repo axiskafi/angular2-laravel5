@@ -1,71 +1,85 @@
 {
   "_args": [
     [
-      "@angular/router@2.0.0-rc.1",
-      "/Applications/AMPPS/www/angular2-laravel5"
+      "@angular/router@3.0.0",
+      "/Applications/AMPPS/www/a2l5"
     ]
   ],
-  "_from": "@angular/router@2.0.0-rc.1",
-  "_id": "@angular/router@2.0.0-rc.1",
+  "_from": "@angular/router@3.0.0",
+  "_id": "@angular/router@3.0.0",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/router",
   "_nodeVersion": "5.4.1",
   "_npmOperationalInternal": {
     "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/router-2.0.0-rc.1.tgz_1462310744425_0.4073680811561644"
+    "tmp": "tmp/router-3.0.0.tgz_1473906772743_0.2897986536845565"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
     "name": "angular"
   },
-  "_npmVersion": "3.8.7",
+  "_npmVersion": "3.9.2",
   "_phantomChildren": {},
   "_requested": {
     "name": "@angular/router",
-    "raw": "@angular/router@2.0.0-rc.1",
-    "rawSpec": "2.0.0-rc.1",
+    "raw": "@angular/router@3.0.0",
+    "rawSpec": "3.0.0",
     "scope": "@angular",
-    "spec": "2.0.0-rc.1",
+    "spec": "3.0.0",
     "type": "version"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/router/-/router-2.0.0-rc.1.tgz",
-  "_shasum": "96f3868884e151fe8bac07ac7e1b4ec0ad07db77",
+  "_resolved": "https://registry.npmjs.org/@angular/router/-/router-3.0.0.tgz",
+  "_shasum": "cdf91b3a5d85ad39aff4fd882455c9b8c3129cd9",
   "_shrinkwrap": null,
-  "_spec": "@angular/router@2.0.0-rc.1",
-  "_where": "/Applications/AMPPS/www/angular2-laravel5",
+  "_spec": "@angular/router@3.0.0",
+  "_where": "/Applications/AMPPS/www/a2l5",
   "author": {
     "name": "angular"
   },
+  "bugs": {
+    "url": "https://github.com/angular/angular/issues"
+  },
   "dependencies": {},
-  "description": "",
+  "description": "Angular - the routing library",
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "96f3868884e151fe8bac07ac7e1b4ec0ad07db77",
-    "tarball": "https://registry.npmjs.org/@angular/router/-/router-2.0.0-rc.1.tgz"
+    "shasum": "cdf91b3a5d85ad39aff4fd882455c9b8c3129cd9",
+    "tarball": "https://registry.npmjs.org/@angular/router/-/router-3.0.0.tgz"
   },
-  "jsnext:main": "esm/index.js",
+  "homepage": "https://github.com/angular/angular/blob/master/modules/%40angular/router/README.md",
+  "keywords": [
+    "angular2",
+    "angular",
+    "router"
+  ],
   "license": "MIT",
-  "main": "index.js",
+  "main": "bundles/router.umd.js",
   "maintainers": [
     {
       "email": "angular-core+npm@google.com",
       "name": "angular"
     }
   ],
+  "module": "index.js",
   "name": "@angular/router",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/common": "2.0.0-rc.1",
-    "@angular/core": "2.0.0-rc.1",
-    "@angular/platform-browser": "2.0.0-rc.1"
+    "@angular/common": "^2.0.0",
+    "@angular/core": "^2.0.0",
+    "@angular/platform-browser": "^2.0.0",
+    "rxjs": "5.0.0-beta.12"
   },
   "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.git"
+  },
   "scripts": {},
-  "typins": "index.d.ts",
-  "version": "2.0.0-rc.1"
+  "typings": "index.d.ts",
+  "version": "3.0.0"
 }

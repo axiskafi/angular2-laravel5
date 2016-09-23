@@ -1,8 +1,7 @@
-
 var assert = require('assert');
-var fs = require('fs');
 var path = require('path');
 var usage = require('./');
+var fs = require('fs');
 
 var origFs = fs.readFileSync;
 var origMarked = fs.origMarked;
@@ -11,7 +10,6 @@ describe('cli-usage', function () {
   afterEach(function() {
     fs.readFileSync = origFs;
   });
-
 
   describe('get', function () {
     it('should get compiled markdown from file input', function () {
@@ -22,6 +20,5 @@ describe('cli-usage', function () {
       };
       assert.ok(usage.get('file.md').indexOf(expected) !== -1);
     });
-
   });
 });

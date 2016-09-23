@@ -1,39 +1,106 @@
-"use strict";
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var lang_1 = require('../src/facade/lang');
-var exceptions_1 = require('../src/facade/exceptions');
-var core_1 = require('@angular/core');
-var interfaces_1 = require('./interfaces');
-var static_request_1 = require('./static_request');
-var base_request_options_1 = require('./base_request_options');
-var enums_1 = require('./enums');
+import { Injectable } from '@angular/core';
+import { isPresent, isString } from '../src/facade/lang';
+import { RequestOptions } from './base_request_options';
+import { RequestMethod } from './enums';
+import { ConnectionBackend } from './interfaces';
+import { Request } from './static_request';
 function httpRequest(backend, request) {
     return backend.createConnection(request).response;
 }
 function mergeOptions(defaultOpts, providedOpts, method, url) {
     var newOptions = defaultOpts;
-    if (lang_1.isPresent(providedOpts)) {
+    if (isPresent(providedOpts)) {
         // Hack so Dart can used named parameters
-        return newOptions.merge(new base_request_options_1.RequestOptions({
+        return newOptions.merge(new RequestOptions({
             method: providedOpts.method || method,
             url: providedOpts.url || url,
             search: providedOpts.search,
             headers: providedOpts.headers,
-            body: providedOpts.body
+            body: providedOpts.body,
+            withCredentials: providedOpts.withCredentials,
+            responseType: providedOpts.responseType
         }));
     }
-    if (lang_1.isPresent(method)) {
-        return newOptions.merge(new base_request_options_1.RequestOptions({ method: method, url: url }));
+    if (isPresent(method)) {
+        return newOptions.merge(new RequestOptions({ method: method, url: url }));
     }
     else {
-        return newOptions.merge(new base_request_options_1.RequestOptions({ url: url }));
+        return newOptions.merge(new RequestOptions({ url: url }));
     }
 }
-var Http = (function () {
+/**
+ * Performs http requests using `XMLHttpRequest` as the default backend.
+ *
+ * `Http` is available as an injectable class, with methods to perform http requests. Calling
+ * `request` returns an `Observable` which will emit a single {@link Response} when a
+ * response is received.
+ *
+ * ### Example
+ *
+ * ```typescript
+ * import {Http, HTTP_PROVIDERS} from '@angular/http';
+ * import 'rxjs/add/operator/map'
+ * @Component({
+ *   selector: 'http-app',
+ *   viewProviders: [HTTP_PROVIDERS],
+ *   templateUrl: 'people.html'
+ * })
+ * class PeopleComponent {
+ *   constructor(http: Http) {
+ *     http.get('people.json')
+ *       // Call map on the response observable to get the parsed people object
+ *       .map(res => res.json())
+ *       // Subscribe to the observable to get the parsed people object and attach it to the
+ *       // component
+ *       .subscribe(people => this.people = people);
+ *   }
+ * }
+ * ```
+ *
+ *
+ * ### Example
+ *
+ * ```
+ * http.get('people.json').subscribe((res:Response) => this.people = res.json());
+ * ```
+ *
+ * The default construct used to perform requests, `XMLHttpRequest`, is abstracted as a "Backend" (
+ * {@link XHRBackend} in this case), which could be mocked with dependency injection by replacing
+ * the {@link XHRBackend} provider, as in the following example:
+ *
+ * ### Example
+ *
+ * ```typescript
+ * import {BaseRequestOptions, Http} from '@angular/http';
+ * import {MockBackend} from '@angular/http/testing';
+ * var injector = Injector.resolveAndCreate([
+ *   BaseRequestOptions,
+ *   MockBackend,
+ *   {provide: Http, useFactory:
+ *       function(backend, defaultOptions) {
+ *         return new Http(backend, defaultOptions);
+ *       },
+ *       deps: [MockBackend, BaseRequestOptions]}
+ * ]);
+ * var http = injector.get(Http);
+ * http.get('request-from-mock-backend.json').subscribe((res:Response) => doSomething(res));
+ * ```
+ *
+ * @experimental
+ */
+export var Http = (function () {
     function Http(_backend, _defaultOptions) {
         this._backend = _backend;
         this._defaultOptions = _defaultOptions;
@@ -46,14 +113,14 @@ var Http = (function () {
      */
     Http.prototype.request = function (url, options) {
         var responseObservable;
-        if (lang_1.isString(url)) {
-            responseObservable = httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions, options, enums_1.RequestMethod.Get, url)));
+        if (isString(url)) {
+            responseObservable = httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Get, url)));
         }
-        else if (url instanceof static_request_1.Request) {
+        else if (url instanceof Request) {
             responseObservable = httpRequest(this._backend, url);
         }
         else {
-            throw exceptions_1.makeTypeError('First argument must be a url string or Request instance.');
+            throw new Error('First argument must be a url string or Request instance.');
         }
         return responseObservable;
     };
@@ -61,49 +128,58 @@ var Http = (function () {
      * Performs a request with `get` http method.
      */
     Http.prototype.get = function (url, options) {
-        return httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions, options, enums_1.RequestMethod.Get, url)));
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Get, url)));
     };
     /**
      * Performs a request with `post` http method.
      */
     Http.prototype.post = function (url, body, options) {
-        return httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions.merge(new base_request_options_1.RequestOptions({ body: body })), options, enums_1.RequestMethod.Post, url)));
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, RequestMethod.Post, url)));
     };
     /**
      * Performs a request with `put` http method.
      */
     Http.prototype.put = function (url, body, options) {
-        return httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions.merge(new base_request_options_1.RequestOptions({ body: body })), options, enums_1.RequestMethod.Put, url)));
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, RequestMethod.Put, url)));
     };
     /**
      * Performs a request with `delete` http method.
      */
     Http.prototype.delete = function (url, options) {
-        return httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions, options, enums_1.RequestMethod.Delete, url)));
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Delete, url)));
     };
     /**
      * Performs a request with `patch` http method.
      */
     Http.prototype.patch = function (url, body, options) {
-        return httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions.merge(new base_request_options_1.RequestOptions({ body: body })), options, enums_1.RequestMethod.Patch, url)));
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, RequestMethod.Patch, url)));
     };
     /**
      * Performs a request with `head` http method.
      */
     Http.prototype.head = function (url, options) {
-        return httpRequest(this._backend, new static_request_1.Request(mergeOptions(this._defaultOptions, options, enums_1.RequestMethod.Head, url)));
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Head, url)));
+    };
+    /**
+     * Performs a request with `options` http method.
+     */
+    Http.prototype.options = function (url, options) {
+        return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Options, url)));
     };
     Http.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
     Http.ctorParameters = [
-        { type: interfaces_1.ConnectionBackend, },
-        { type: base_request_options_1.RequestOptions, },
+        { type: ConnectionBackend, },
+        { type: RequestOptions, },
     ];
     return Http;
 }());
-exports.Http = Http;
-var Jsonp = (function (_super) {
+/**
+ * @experimental
+ */
+export var Jsonp = (function (_super) {
     __extends(Jsonp, _super);
     function Jsonp(backend, defaultOptions) {
         _super.call(this, backend, defaultOptions);
@@ -113,32 +189,40 @@ var Jsonp = (function (_super) {
      * a {@link Request} instance. If the first argument is a url, an optional {@link RequestOptions}
      * object can be provided as the 2nd argument. The options object will be merged with the values
      * of {@link BaseRequestOptions} before performing the request.
+     *
+     * @security Regular XHR is the safest alternative to JSONP for most applications, and is
+     * supported by all current browsers. Because JSONP creates a `<script>` element with
+     * contents retrieved from a remote source, attacker-controlled data introduced by an untrusted
+     * source could expose your application to XSS risks. Data exposed by JSONP may also be
+     * readable by malicious third-party websites. In addition, JSONP introduces potential risk for
+     * future security issues (e.g. content sniffing).  For more detail, see the
+     * [Security Guide](http://g.co/ng/security).
      */
     Jsonp.prototype.request = function (url, options) {
         var responseObservable;
-        if (lang_1.isString(url)) {
+        if (isString(url)) {
             url =
-                new static_request_1.Request(mergeOptions(this._defaultOptions, options, enums_1.RequestMethod.Get, url));
+                new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Get, url));
         }
-        if (url instanceof static_request_1.Request) {
-            if (url.method !== enums_1.RequestMethod.Get) {
-                exceptions_1.makeTypeError('JSONP requests must use GET request method.');
+        if (url instanceof Request) {
+            if (url.method !== RequestMethod.Get) {
+                throw new Error('JSONP requests must use GET request method.');
             }
             responseObservable = httpRequest(this._backend, url);
         }
         else {
-            throw exceptions_1.makeTypeError('First argument must be a url string or Request instance.');
+            throw new Error('First argument must be a url string or Request instance.');
         }
         return responseObservable;
     };
     Jsonp.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
     Jsonp.ctorParameters = [
-        { type: interfaces_1.ConnectionBackend, },
-        { type: base_request_options_1.RequestOptions, },
+        { type: ConnectionBackend, },
+        { type: RequestOptions, },
     ];
     return Jsonp;
 }(Http));
-exports.Jsonp = Jsonp;
 //# sourceMappingURL=http.js.map

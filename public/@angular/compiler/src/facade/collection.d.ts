@@ -1,3 +1,4 @@
+
 export declare var Map: MapConstructor;
 export declare var Set: SetConstructor;
 export declare class MapWrapper {
@@ -44,7 +45,7 @@ export declare class StringMapWrapper {
     }, key: string): void;
     static forEach<K, V>(map: {
         [key: string]: V;
-    }, callback: Function): void;
+    }, callback: (v: V, K: string) => void): void;
     static merge<V>(m1: {
         [key: string]: V;
     }, m2: {

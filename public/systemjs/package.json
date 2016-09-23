@@ -2,7 +2,7 @@
   "_args": [
     [
       "systemjs@0.19.27",
-      "/Applications/AMPPS/www/angular2-laravel5"
+      "/Applications/AMPPS/www/a2l5"
     ]
   ],
   "_from": "systemjs@0.19.27",
@@ -36,7 +36,7 @@
   "_shasum": "f1740d565ce64371ac0de7072a4d1e5471ba7ba2",
   "_shrinkwrap": null,
   "_spec": "systemjs@0.19.27",
-  "_where": "/Applications/AMPPS/www/angular2-laravel5",
+  "_where": "/Applications/AMPPS/www/a2l5",
   "author": {
     "name": "Guy Bedford"
   },

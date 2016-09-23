@@ -1,7 +1,21 @@
-"use strict";
-var headers_1 = require('./headers');
-var http_utils_1 = require('./http_utils');
-var lang_1 = require('../src/facade/lang');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+import { StringWrapper, isPresent } from '../src/facade/lang';
+import { Body } from './body';
+import { ContentType } from './enums';
+import { Headers } from './headers';
+import { normalizeMethodName } from './http_utils';
+import { URLSearchParams } from './url_search_params';
 // TODO(jeffbcross): properly implement body accessors
 /**
  * Creates `Request` instances from provided values.
@@ -39,17 +53,21 @@ var lang_1 = require('../src/facade/lang');
  *   console.log('people', res.json());
  * });
  * ```
+ *
+ * @experimental
  */
-var Request = (function () {
+export var Request = (function (_super) {
+    __extends(Request, _super);
     function Request(requestOptions) {
+        _super.call(this);
         // TODO: assert that url is present
         var url = requestOptions.url;
         this.url = requestOptions.url;
-        if (lang_1.isPresent(requestOptions.search)) {
+        if (isPresent(requestOptions.search)) {
             var search = requestOptions.search.toString();
             if (search.length > 0) {
                 var prefix = '?';
-                if (lang_1.StringWrapper.contains(this.url, '?')) {
+                if (StringWrapper.contains(this.url, '?')) {
                     prefix = (this.url[this.url.length - 1] == '&') ? '' : '&';
                 }
                 // TODO: just delete search-query-looking string in url?
@@ -57,19 +75,88 @@ var Request = (function () {
             }
         }
         this._body = requestOptions.body;
-        this.method = http_utils_1.normalizeMethodName(requestOptions.method);
+        this.method = normalizeMethodName(requestOptions.method);
         // TODO(jeffbcross): implement behavior
         // Defaults to 'omit', consistent with browser
         // TODO(jeffbcross): implement behavior
-        this.headers = new headers_1.Headers(requestOptions.headers);
+        this.headers = new Headers(requestOptions.headers);
+        this.contentType = this.detectContentType();
+        this.withCredentials = requestOptions.withCredentials;
+        this.responseType = requestOptions.responseType;
     }
     /**
-     * Returns the request's body as string, assuming that body exists. If body is undefined, return
-     * empty
-     * string.
+     * Returns the content type enum based on header options.
      */
-    Request.prototype.text = function () { return lang_1.isPresent(this._body) ? this._body.toString() : ''; };
+    Request.prototype.detectContentType = function () {
+        switch (this.headers.get('content-type')) {
+            case 'application/json':
+                return ContentType.JSON;
+            case 'application/x-www-form-urlencoded':
+                return ContentType.FORM;
+            case 'multipart/form-data':
+                return ContentType.FORM_DATA;
+            case 'text/plain':
+            case 'text/html':
+                return ContentType.TEXT;
+            case 'application/octet-stream':
+                return ContentType.BLOB;
+            default:
+                return this.detectContentTypeFromBody();
+        }
+    };
+    /**
+     * Returns the content type of request's body based on its type.
+     */
+    Request.prototype.detectContentTypeFromBody = function () {
+        if (this._body == null) {
+            return ContentType.NONE;
+        }
+        else if (this._body instanceof URLSearchParams) {
+            return ContentType.FORM;
+        }
+        else if (this._body instanceof FormData) {
+            return ContentType.FORM_DATA;
+        }
+        else if (this._body instanceof Blob) {
+            return ContentType.BLOB;
+        }
+        else if (this._body instanceof ArrayBuffer) {
+            return ContentType.ARRAY_BUFFER;
+        }
+        else if (this._body && typeof this._body == 'object') {
+            return ContentType.JSON;
+        }
+        else {
+            return ContentType.TEXT;
+        }
+    };
+    /**
+     * Returns the request's body according to its type. If body is undefined, return
+     * null.
+     */
+    Request.prototype.getBody = function () {
+        switch (this.contentType) {
+            case ContentType.JSON:
+                return this.text();
+            case ContentType.FORM:
+                return this.text();
+            case ContentType.FORM_DATA:
+                return this._body;
+            case ContentType.TEXT:
+                return this.text();
+            case ContentType.BLOB:
+                return this.blob();
+            case ContentType.ARRAY_BUFFER:
+                return this.arrayBuffer();
+            default:
+                return null;
+        }
+    };
     return Request;
-}());
-exports.Request = Request;
+}(Body));
+var noop = function () { };
+var w = typeof window == 'object' ? window : noop;
+var FormData = w['FormData'] || noop;
+var Blob = w['Blob'] || noop;
+var ArrayBuffer = w['ArrayBuffer'] || noop;
 //# sourceMappingURL=static_request.js.map

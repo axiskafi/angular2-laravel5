@@ -1,5 +1,4 @@
 import { Headers } from './headers';
-import { ResponseType } from './enums';
 import { ResponseOptionsArgs } from './interfaces';
 /**
  * Creates a response options object to be optionally provided when instantiating a
@@ -26,12 +25,14 @@ import { ResponseOptionsArgs } from './interfaces';
  *
  * console.log('res.json():', res.json()); // Object {name: "Jeff"}
  * ```
+ *
+ * @experimental
  */
 export declare class ResponseOptions {
     /**
-     * String or Object representing the body of the {@link Response}.
+     * String, Object, ArrayBuffer or Blob representing the body of the {@link Response}.
      */
-    body: string | Object;
+    body: string | Object | ArrayBuffer | Blob;
     /**
      * Http {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html status code}
      * associated with the response.
@@ -41,14 +42,6 @@ export declare class ResponseOptions {
      * Response {@link Headers headers}
      */
     headers: Headers;
-    /**
-     * @internal
-     */
-    statusText: string;
-    /**
-     * @internal
-     */
-    type: ResponseType;
     url: string;
     constructor({body, status, headers, statusText, type, url}?: ResponseOptionsArgs);
     /**
@@ -102,7 +95,7 @@ export declare class ResponseOptions {
  *   headers:Headers = new Headers({network: 'github'});
  * }
  *
- * bootstrap(App, [HTTP_PROVIDERS, provide(ResponseOptions, {useClass: MyOptions})]);
+ * bootstrap(App, [HTTP_PROVIDERS, {provide: ResponseOptions, useClass: MyOptions}]);
  * ```
  *
  * The options could also be extended when manually creating a {@link Response}
@@ -121,6 +114,8 @@ export declare class ResponseOptions {
  * console.log('res.headers.get("framework"):', res.headers.get('framework')); // angular
  * console.log('res.text():', res.text()); // Angular;
  * ```
+ *
+ * @experimental
  */
 export declare class BaseResponseOptions extends ResponseOptions {
     constructor();

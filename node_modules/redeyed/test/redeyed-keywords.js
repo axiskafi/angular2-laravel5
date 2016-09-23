@@ -40,4 +40,6 @@ test('types', function (t) {
                       , '$class% Foo $extends% Bar { constructor(name,value){$super%(value);$this%.name = name;}}')
     t.end()
   })
+
+  t.end()
 })

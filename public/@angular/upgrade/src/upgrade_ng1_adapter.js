@@ -1,14 +1,20 @@
-"use strict";
-var core_1 = require('@angular/core');
-var constants_1 = require('./constants');
-var util_1 = require('./util');
-var angular = require('./angular_js');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Directive, ElementRef, EventEmitter, Inject } from '@angular/core';
+import * as angular from './angular_js';
+import { NG1_COMPILE, NG1_CONTROLLER, NG1_HTTP_BACKEND, NG1_SCOPE, NG1_TEMPLATE_CACHE } from './constants';
+import { controllerKey } from './util';
 var CAMEL_CASE = /([A-Z])/g;
 var INITIAL_VALUE = {
     __UNINITIALIZED__: true
 };
 var NOT_SUPPORTED = 'NOT_SUPPORTED';
-var UpgradeNg1ComponentAdapterBuilder = (function () {
+export var UpgradeNg1ComponentAdapterBuilder = (function () {
     function UpgradeNg1ComponentAdapterBuilder(name) {
         this.name = name;
         this.inputs = [];
@@ -21,14 +27,13 @@ var UpgradeNg1ComponentAdapterBuilder = (function () {
         this.linkFn = null;
         this.directive = null;
         this.$controller = null;
-        var selector = name.replace(CAMEL_CASE, function (all, next) { return '-' + next.toLowerCase(); });
+        var selector = name.replace(CAMEL_CASE, function (all /** TODO #9100 */, next) { return '-' + next.toLowerCase(); });
         var self = this;
         this.type =
-            core_1.Directive({ selector: selector, inputs: this.inputsRename, outputs: this.outputsRename })
+            Directive({ selector: selector, inputs: this.inputsRename, outputs: this.outputsRename })
                 .Class({
                 constructor: [
-                    new core_1.Inject(constants_1.NG1_SCOPE),
-                    core_1.ElementRef,
+                    new Inject(NG1_SCOPE), ElementRef,
                     function (scope, elementRef) {
                         return new UpgradeNg1ComponentAdapter(self.linkFn, scope, self.directive, elementRef, self.$controller, self.inputs, self.outputs, self.propertyOutputs, self.checkProperties, self.propertyMap);
                     }
@@ -82,7 +87,10 @@ var UpgradeNg1ComponentAdapterBuilder = (function () {
                             this.outputs.push(outputName);
                             this.outputsRename.push(outputNameRenameChange);
                             this.propertyMap[outputName] = localName;
-                        // don't break; let it fall through to '@'
+                            this.inputs.push(inputName);
+                            this.inputsRename.push(inputNameRename);
+                            this.propertyMap[inputName] = localName;
+                            break;
                         case '@':
                         // handle the '<' binding of angular 1.5 components
                         case '<':
@@ -106,17 +114,19 @@ var UpgradeNg1ComponentAdapterBuilder = (function () {
     UpgradeNg1ComponentAdapterBuilder.prototype.compileTemplate = function (compile, templateCache, httpBackend) {
         var _this = this;
         if (this.directive.template !== undefined) {
-            this.linkFn = compileHtml(this.directive.template);
+            this.linkFn = compileHtml(typeof this.directive.template === 'function' ? this.directive.template() :
+                this.directive.template);
         }
         else if (this.directive.templateUrl) {
-            var url = this.directive.templateUrl;
+            var url = typeof this.directive.templateUrl === 'function' ? this.directive.templateUrl() :
+                this.directive.templateUrl;
             var html = templateCache.get(url);
             if (html !== undefined) {
                 this.linkFn = compileHtml(html);
             }
             else {
                 return new Promise(function (resolve, err) {
-                    httpBackend('GET', url, null, function (status, response) {
+                    httpBackend('GET', url, null, function (status /** TODO #9100 */, response /** TODO #9100 */) {
                         if (status == 200) {
                             resolve(_this.linkFn = compileHtml(templateCache.put(url, response)));
                         }
@@ -131,18 +141,21 @@ var UpgradeNg1ComponentAdapterBuilder = (function () {
             throw new Error("Directive '" + this.name + "' is not a component, it is missing template.");
         }
         return null;
-        function compileHtml(html) {
+        function compileHtml(html /** TODO #9100 */) {
             var div = document.createElement('div');
             div.innerHTML = html;
             return compile(div.childNodes);
         }
     };
+    /**
+     * Upgrade ng1 components into Angular 2.
+     */
     UpgradeNg1ComponentAdapterBuilder.resolve = function (exportedComponents, injector) {
         var promises = [];
-        var compile = injector.get(constants_1.NG1_COMPILE);
-        var templateCache = injector.get(constants_1.NG1_TEMPLATE_CACHE);
-        var httpBackend = injector.get(constants_1.NG1_HTTP_BACKEND);
-        var $controller = injector.get(constants_1.NG1_CONTROLLER);
+        var compile = injector.get(NG1_COMPILE);
+        var templateCache = injector.get(NG1_TEMPLATE_CACHE);
+        var httpBackend = injector.get(NG1_HTTP_BACKEND);
+        var $controller = injector.get(NG1_CONTROLLER);
         for (var name in exportedComponents) {
             if (exportedComponents.hasOwnProperty(name)) {
                 var exportedComponent = exportedComponents[name];
@@ -158,11 +171,11 @@ var UpgradeNg1ComponentAdapterBuilder = (function () {
     };
     return UpgradeNg1ComponentAdapterBuilder;
 }());
-exports.UpgradeNg1ComponentAdapterBuilder = UpgradeNg1ComponentAdapterBuilder;
 var UpgradeNg1ComponentAdapter = (function () {
     function UpgradeNg1ComponentAdapter(linkFn, scope, directive, elementRef, $controller, inputs, outputs, propOuts, checkProperties, propertyMap) {
         this.linkFn = linkFn;
         this.directive = directive;
+        this.$controller = $controller;
         this.inputs = inputs;
         this.outputs = outputs;
         this.propOuts = propOuts;
@@ -170,41 +183,45 @@ var UpgradeNg1ComponentAdapter = (function () {
         this.propertyMap = propertyMap;
         this.destinationObj = null;
         this.checkLastValues = [];
+        this.$element = null;
         this.element = elementRef.nativeElement;
         this.componentScope = scope.$new(!!directive.scope);
-        var $element = angular.element(this.element);
+        this.$element = angular.element(this.element);
         var controllerType = directive.controller;
-        var controller = null;
-        if (controllerType) {
-            var locals = { $scope: this.componentScope, $element: $element };
-            controller = $controller(controllerType, locals, null, directive.controllerAs);
-            $element.data(util_1.controllerKey(directive.name), controller);
+        if (directive.bindToController && controllerType) {
+            this.destinationObj = this.buildController(controllerType);
         }
-        var link = directive.link;
-        if (typeof link == 'object')
-            link = link.pre;
-        if (link) {
-            var attrs = NOT_SUPPORTED;
-            var transcludeFn = NOT_SUPPORTED;
-            var linkController = this.resolveRequired($element, directive.require);
-            directive.link(this.componentScope, $element, attrs, linkController, transcludeFn);
+        else {
+            this.destinationObj = this.componentScope;
         }
-        this.destinationObj =
-            directive.bindToController && controller ? controller : this.componentScope;
         for (var i = 0; i < inputs.length; i++) {
             this[inputs[i]] = null;
         }
         for (var j = 0; j < outputs.length; j++) {
-            var emitter = this[outputs[j]] = new core_1.EventEmitter();
-            this.setComponentProperty(outputs[j], (function (emitter) { return function (value) { return emitter.emit(value); }; })(emitter));
+            var emitter = this[outputs[j]] = new EventEmitter();
+            this.setComponentProperty(outputs[j], (function (emitter /** TODO #9100 */) { return function (value /** TODO #9100 */) {
+                return emitter.emit(value);
+            }; })(emitter));
         }
         for (var k = 0; k < propOuts.length; k++) {
-            this[propOuts[k]] = new core_1.EventEmitter();
+            this[propOuts[k]] = new EventEmitter();
             this.checkLastValues.push(INITIAL_VALUE);
         }
     }
     UpgradeNg1ComponentAdapter.prototype.ngOnInit = function () {
         var _this = this;
+        if (!this.directive.bindToController && this.directive.controller) {
+            this.buildController(this.directive.controller);
+        }
+        var link = this.directive.link;
+        if (typeof link == 'object')
+            link = link.pre;
+        if (link) {
+            var attrs = NOT_SUPPORTED;
+            var transcludeFn = NOT_SUPPORTED;
+            var linkController = this.resolveRequired(this.$element, this.directive.require);
+            this.directive.link(this.componentScope, this.$element, attrs, linkController, transcludeFn);
+        }
         var childNodes = [];
         var childNode;
         while (childNode = this.element.firstChild) {
@@ -215,7 +232,9 @@ var UpgradeNg1ComponentAdapter = (function () {
             for (var i = 0, ii = clonedElement.length; i < ii; i++) {
                 _this.element.appendChild(clonedElement[i]);
             }
-        }, { parentBoundTranscludeFn: function (scope, cloneAttach) { cloneAttach(childNodes); } });
+        }, {
+            parentBoundTranscludeFn: function (scope /** TODO #9100 */, cloneAttach /** TODO #9100 */) { cloneAttach(childNodes); }
+        });
         if (this.destinationObj.$onInit) {
             this.destinationObj.$onInit();
         }
@@ -250,6 +269,12 @@ var UpgradeNg1ComponentAdapter = (function () {
     UpgradeNg1ComponentAdapter.prototype.setComponentProperty = function (name, value) {
         this.destinationObj[this.propertyMap[name]] = value;
     };
+    UpgradeNg1ComponentAdapter.prototype.buildController = function (controllerType /** TODO #9100 */) {
+        var locals = { $scope: this.componentScope, $element: this.$element };
+        var controller = this.$controller(controllerType, locals, null, this.directive.controllerAs);
+        this.$element.data(controllerKey(this.directive.name), controller);
+        return controller;
+    };
     UpgradeNg1ComponentAdapter.prototype.resolveRequired = function ($element, require) {
         if (!require) {
             return undefined;
@@ -272,7 +297,7 @@ var UpgradeNg1ComponentAdapter = (function () {
                 startParent = true;
                 name = name.substr(1);
             }
-            var key = util_1.controllerKey(name);
+            var key = controllerKey(name);
             if (startParent)
                 $element = $element.parent();
             var dep = searchParents ? $element.inheritedData(key) : $element.data(key);

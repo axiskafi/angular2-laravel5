@@ -1,13 +1,14 @@
-"use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var core_1 = require('@angular/core');
-var collection_1 = require('../../src/facade/collection');
-var lang_1 = require('../../src/facade/lang');
-var exceptions_1 = require('../../src/facade/exceptions');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Injectable } from '@angular/core';
+import * as chars from '../chars';
+import { NumberWrapper, StringJoiner, StringWrapper, isPresent } from '../facade/lang';
+export var TokenType;
 (function (TokenType) {
     TokenType[TokenType["Character"] = 0] = "Character";
     TokenType[TokenType["Identifier"] = 1] = "Identifier";
@@ -15,9 +16,10 @@ var exceptions_1 = require('../../src/facade/exceptions');
     TokenType[TokenType["String"] = 3] = "String";
     TokenType[TokenType["Operator"] = 4] = "Operator";
     TokenType[TokenType["Number"] = 5] = "Number";
-})(exports.TokenType || (exports.TokenType = {}));
-var TokenType = exports.TokenType;
-var Lexer = (function () {
+    TokenType[TokenType["Error"] = 6] = "Error";
+})(TokenType || (TokenType = {}));
+var KEYWORDS = ['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else', 'this'];
+export var Lexer = (function () {
     function Lexer() {
     }
     Lexer.prototype.tokenize = function (text) {
@@ -31,12 +33,13 @@ var Lexer = (function () {
         return tokens;
     };
     Lexer.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
+    Lexer.ctorParameters = [];
     return Lexer;
 }());
-exports.Lexer = Lexer;
-var Token = (function () {
+export var Token = (function () {
     function Token(index, type, numValue, strValue) {
         this.index = index;
         this.type = type;
@@ -44,29 +47,25 @@ var Token = (function () {
         this.strValue = strValue;
     }
     Token.prototype.isCharacter = function (code) {
-        return (this.type == TokenType.Character && this.numValue == code);
+        return this.type == TokenType.Character && this.numValue == code;
     };
-    Token.prototype.isNumber = function () { return (this.type == TokenType.Number); };
-    Token.prototype.isString = function () { return (this.type == TokenType.String); };
+    Token.prototype.isNumber = function () { return this.type == TokenType.Number; };
+    Token.prototype.isString = function () { return this.type == TokenType.String; };
     Token.prototype.isOperator = function (operater) {
-        return (this.type == TokenType.Operator && this.strValue == operater);
+        return this.type == TokenType.Operator && this.strValue == operater;
     };
-    Token.prototype.isIdentifier = function () { return (this.type == TokenType.Identifier); };
-    Token.prototype.isKeyword = function () { return (this.type == TokenType.Keyword); };
-    Token.prototype.isKeywordDeprecatedVar = function () {
-        return (this.type == TokenType.Keyword && this.strValue == "var");
-    };
-    Token.prototype.isKeywordLet = function () { return (this.type == TokenType.Keyword && this.strValue == "let"); };
-    Token.prototype.isKeywordNull = function () { return (this.type == TokenType.Keyword && this.strValue == "null"); };
+    Token.prototype.isIdentifier = function () { return this.type == TokenType.Identifier; };
+    Token.prototype.isKeyword = function () { return this.type == TokenType.Keyword; };
+    Token.prototype.isKeywordLet = function () { return this.type == TokenType.Keyword && this.strValue == 'let'; };
+    Token.prototype.isKeywordNull = function () { return this.type == TokenType.Keyword && this.strValue == 'null'; };
     Token.prototype.isKeywordUndefined = function () {
-        return (this.type == TokenType.Keyword && this.strValue == "undefined");
+        return this.type == TokenType.Keyword && this.strValue == 'undefined';
     };
-    Token.prototype.isKeywordTrue = function () { return (this.type == TokenType.Keyword && this.strValue == "true"); };
-    Token.prototype.isKeywordFalse = function () { return (this.type == TokenType.Keyword && this.strValue == "false"); };
-    Token.prototype.toNumber = function () {
-        // -1 instead of NULL ok?
-        return (this.type == TokenType.Number) ? this.numValue : -1;
-    };
+    Token.prototype.isKeywordTrue = function () { return this.type == TokenType.Keyword && this.strValue == 'true'; };
+    Token.prototype.isKeywordFalse = function () { return this.type == TokenType.Keyword && this.strValue == 'false'; };
+    Token.prototype.isKeywordThis = function () { return this.type == TokenType.Keyword && this.strValue == 'this'; };
+    Token.prototype.isError = function () { return this.type == TokenType.Error; };
+    Token.prototype.toNumber = function () { return this.type == TokenType.Number ? this.numValue : -1; };
     Token.prototype.toString = function () {
         switch (this.type) {
             case TokenType.Character:
@@ -74,6 +73,7 @@ var Token = (function () {
             case TokenType.Keyword:
             case TokenType.Operator:
             case TokenType.String:
+            case TokenType.Error:
                 return this.strValue;
             case TokenType.Number:
                 return this.numValue.toString();
@@ -83,9 +83,8 @@ var Token = (function () {
     };
     return Token;
 }());
-exports.Token = Token;
 function newCharacterToken(index, code) {
-    return new Token(index, TokenType.Character, code, lang_1.StringWrapper.fromCharCode(code));
+    return new Token(index, TokenType.Character, code, StringWrapper.fromCharCode(code));
 }
 function newIdentifierToken(index, text) {
     return new Token(index, TokenType.Identifier, 0, text);
@@ -100,62 +99,12 @@ function newStringToken(index, text) {
     return new Token(index, TokenType.String, 0, text);
 }
 function newNumberToken(index, n) {
-    return new Token(index, TokenType.Number, n, "");
+    return new Token(index, TokenType.Number, n, '');
 }
-exports.EOF = new Token(-1, TokenType.Character, 0, "");
-exports.$EOF = 0;
-exports.$TAB = 9;
-exports.$LF = 10;
-exports.$VTAB = 11;
-exports.$FF = 12;
-exports.$CR = 13;
-exports.$SPACE = 32;
-exports.$BANG = 33;
-exports.$DQ = 34;
-exports.$HASH = 35;
-exports.$$ = 36;
-exports.$PERCENT = 37;
-exports.$AMPERSAND = 38;
-exports.$SQ = 39;
-exports.$LPAREN = 40;
-exports.$RPAREN = 41;
-exports.$STAR = 42;
-exports.$PLUS = 43;
-exports.$COMMA = 44;
-exports.$MINUS = 45;
-exports.$PERIOD = 46;
-exports.$SLASH = 47;
-exports.$COLON = 58;
-exports.$SEMICOLON = 59;
-exports.$LT = 60;
-exports.$EQ = 61;
-exports.$GT = 62;
-exports.$QUESTION = 63;
-var $0 = 48;
-var $9 = 57;
-var $A = 65, $E = 69, $Z = 90;
-exports.$LBRACKET = 91;
-exports.$BACKSLASH = 92;
-exports.$RBRACKET = 93;
-var $CARET = 94;
-var $_ = 95;
-exports.$BT = 96;
-var $a = 97, $e = 101, $f = 102;
-var $n = 110, $r = 114, $t = 116, $u = 117, $v = 118, $z = 122;
-exports.$LBRACE = 123;
-exports.$BAR = 124;
-exports.$RBRACE = 125;
-var $NBSP = 160;
-var ScannerError = (function (_super) {
-    __extends(ScannerError, _super);
-    function ScannerError(message) {
-        _super.call(this);
-        this.message = message;
-    }
-    ScannerError.prototype.toString = function () { return this.message; };
-    return ScannerError;
-}(exceptions_1.BaseException));
-exports.ScannerError = ScannerError;
+function newErrorToken(index, message) {
+    return new Token(index, TokenType.Error, 0, message);
+}
+export var EOF = new Token(-1, TokenType.Character, 0, '');
 var _Scanner = (function () {
     function _Scanner(input) {
         this.input = input;
@@ -166,18 +115,18 @@ var _Scanner = (function () {
     }
     _Scanner.prototype.advance = function () {
         this.peek =
-            ++this.index >= this.length ? exports.$EOF : lang_1.StringWrapper.charCodeAt(this.input, this.index);
+            ++this.index >= this.length ? chars.$EOF : StringWrapper.charCodeAt(this.input, this.index);
     };
     _Scanner.prototype.scanToken = function () {
         var input = this.input, length = this.length, peek = this.peek, index = this.index;
         // Skip whitespace.
-        while (peek <= exports.$SPACE) {
+        while (peek <= chars.$SPACE) {
             if (++index >= length) {
-                peek = exports.$EOF;
+                peek = chars.$EOF;
                 break;
             }
             else {
-                peek = lang_1.StringWrapper.charCodeAt(input, index);
+                peek = StringWrapper.charCodeAt(input, index);
             }
         }
         this.peek = peek;
@@ -188,53 +137,54 @@ var _Scanner = (function () {
         // Handle identifiers and numbers.
         if (isIdentifierStart(peek))
             return this.scanIdentifier();
-        if (isDigit(peek))
+        if (chars.isDigit(peek))
             return this.scanNumber(index);
         var start = index;
         switch (peek) {
-            case exports.$PERIOD:
+            case chars.$PERIOD:
                 this.advance();
-                return isDigit(this.peek) ? this.scanNumber(start) : newCharacterToken(start, exports.$PERIOD);
-            case exports.$LPAREN:
-            case exports.$RPAREN:
-            case exports.$LBRACE:
-            case exports.$RBRACE:
-            case exports.$LBRACKET:
-            case exports.$RBRACKET:
-            case exports.$COMMA:
-            case exports.$COLON:
-            case exports.$SEMICOLON:
+                return chars.isDigit(this.peek) ? this.scanNumber(start) :
+                    newCharacterToken(start, chars.$PERIOD);
+            case chars.$LPAREN:
+            case chars.$RPAREN:
+            case chars.$LBRACE:
+            case chars.$RBRACE:
+            case chars.$LBRACKET:
+            case chars.$RBRACKET:
+            case chars.$COMMA:
+            case chars.$COLON:
+            case chars.$SEMICOLON:
                 return this.scanCharacter(start, peek);
-            case exports.$SQ:
-            case exports.$DQ:
+            case chars.$SQ:
+            case chars.$DQ:
                 return this.scanString();
-            case exports.$HASH:
-            case exports.$PLUS:
-            case exports.$MINUS:
-            case exports.$STAR:
-            case exports.$SLASH:
-            case exports.$PERCENT:
-            case $CARET:
-                return this.scanOperator(start, lang_1.StringWrapper.fromCharCode(peek));
-            case exports.$QUESTION:
-                return this.scanComplexOperator(start, '?', exports.$PERIOD, '.');
-            case exports.$LT:
-            case exports.$GT:
-                return this.scanComplexOperator(start, lang_1.StringWrapper.fromCharCode(peek), exports.$EQ, '=');
-            case exports.$BANG:
-            case exports.$EQ:
-                return this.scanComplexOperator(start, lang_1.StringWrapper.fromCharCode(peek), exports.$EQ, '=', exports.$EQ, '=');
-            case exports.$AMPERSAND:
-                return this.scanComplexOperator(start, '&', exports.$AMPERSAND, '&');
-            case exports.$BAR:
-                return this.scanComplexOperator(start, '|', exports.$BAR, '|');
-            case $NBSP:
-                while (isWhitespace(this.peek))
+            case chars.$HASH:
+            case chars.$PLUS:
+            case chars.$MINUS:
+            case chars.$STAR:
+            case chars.$SLASH:
+            case chars.$PERCENT:
+            case chars.$CARET:
+                return this.scanOperator(start, StringWrapper.fromCharCode(peek));
+            case chars.$QUESTION:
+                return this.scanComplexOperator(start, '?', chars.$PERIOD, '.');
+            case chars.$LT:
+            case chars.$GT:
+                return this.scanComplexOperator(start, StringWrapper.fromCharCode(peek), chars.$EQ, '=');
+            case chars.$BANG:
+            case chars.$EQ:
+                return this.scanComplexOperator(start, StringWrapper.fromCharCode(peek), chars.$EQ, '=', chars.$EQ, '=');
+            case chars.$AMPERSAND:
+                return this.scanComplexOperator(start, '&', chars.$AMPERSAND, '&');
+            case chars.$BAR:
+                return this.scanComplexOperator(start, '|', chars.$BAR, '|');
+            case chars.$NBSP:
+                while (chars.isWhitespace(this.peek))
                     this.advance();
                 return this.scanToken();
         }
-        this.error("Unexpected character [" + lang_1.StringWrapper.fromCharCode(peek) + "]", 0);
-        return null;
+        this.advance();
+        return this.error("Unexpected character [" + StringWrapper.fromCharCode(peek) + "]", 0);
     };
     _Scanner.prototype.scanCharacter = function (start, code) {
         this.advance();
@@ -262,7 +212,7 @@ var _Scanner = (function () {
             this.advance();
             str += two;
         }
-        if (lang_1.isPresent(threeCode) && this.peek == threeCode) {
+        if (isPresent(threeCode) && this.peek == threeCode) {
             this.advance();
             str += three;
         }
@@ -274,28 +224,24 @@ var _Scanner = (function () {
         while (isIdentifierPart(this.peek))
             this.advance();
         var str = this.input.substring(start, this.index);
-        if (collection_1.SetWrapper.has(KEYWORDS, str)) {
-            return newKeywordToken(start, str);
-        }
-        else {
-            return newIdentifierToken(start, str);
-        }
+        return KEYWORDS.indexOf(str) > -1 ? newKeywordToken(start, str) :
+            newIdentifierToken(start, str);
     };
     _Scanner.prototype.scanNumber = function (start) {
         var simple = (this.index === start);
         this.advance(); // Skip initial digit.
         while (true) {
-            if (isDigit(this.peek)) {
+            if (chars.isDigit(this.peek)) {
             }
-            else if (this.peek == exports.$PERIOD) {
+            else if (this.peek == chars.$PERIOD) {
                 simple = false;
             }
             else if (isExponentStart(this.peek)) {
                 this.advance();
                 if (isExponentSign(this.peek))
                     this.advance();
-                if (!isDigit(this.peek))
-                    this.error('Invalid exponent', -1);
+                if (!chars.isDigit(this.peek))
+                    return this.error('Invalid exponent', -1);
                 simple = false;
             }
             else {
@@ -304,8 +250,7 @@ var _Scanner = (function () {
             this.advance();
         }
         var str = this.input.substring(start, this.index);
-        // TODO
-        var value = simple ? lang_1.NumberWrapper.parseIntAutoRadix(str) : lang_1.NumberWrapper.parseFloat(str);
+        var value = simple ? NumberWrapper.parseIntAutoRadix(str) : parseFloat(str);
         return newNumberToken(start, value);
     };
     _Scanner.prototype.scanString = function () {
@@ -316,20 +261,20 @@ var _Scanner = (function () {
         var marker = this.index;
         var input = this.input;
         while (this.peek != quote) {
-            if (this.peek == exports.$BACKSLASH) {
+            if (this.peek == chars.$BACKSLASH) {
                 if (buffer == null)
-                    buffer = new lang_1.StringJoiner();
+                    buffer = new StringJoiner();
                 buffer.add(input.substring(marker, this.index));
                 this.advance();
                 var unescapedCode;
-                if (this.peek == $u) {
+                if (this.peek == chars.$u) {
                     // 4 character hex code for unicode character.
                     var hex = input.substring(this.index + 1, this.index + 5);
                     try {
-                        unescapedCode = lang_1.NumberWrapper.parseInt(hex, 16);
+                        unescapedCode = NumberWrapper.parseInt(hex, 16);
                     }
                     catch (e) {
-                        this.error("Invalid unicode escape [\\u" + hex + "]", 0);
+                        return this.error("Invalid unicode escape [\\u" + hex + "]", 0);
                     }
                     for (var i = 0; i < 5; i++) {
                         this.advance();
@@ -339,11 +284,11 @@ var _Scanner = (function () {
                     unescapedCode = unescape(this.peek);
                     this.advance();
                 }
-                buffer.add(lang_1.StringWrapper.fromCharCode(unescapedCode));
+                buffer.add(StringWrapper.fromCharCode(unescapedCode));
                 marker = this.index;
             }
-            else if (this.peek == exports.$EOF) {
-                this.error('Unterminated quote', 0);
+            else if (this.peek == chars.$EOF) {
+                return this.error('Unterminated quote', 0);
             }
             else {
                 this.advance();
@@ -361,88 +306,55 @@ var _Scanner = (function () {
     };
     _Scanner.prototype.error = function (message, offset) {
         var position = this.index + offset;
-        throw new ScannerError("Lexer Error: " + message + " at column " + position + " in expression [" + this.input + "]");
+        return newErrorToken(position, "Lexer Error: " + message + " at column " + position + " in expression [" + this.input + "]");
     };
     return _Scanner;
 }());
-function isWhitespace(code) {
-    return (code >= exports.$TAB && code <= exports.$SPACE) || (code == $NBSP);
-}
 function isIdentifierStart(code) {
-    return ($a <= code && code <= $z) || ($A <= code && code <= $Z) || (code == $_) || (code == exports.$$);
+    return (chars.$a <= code && code <= chars.$z) || (chars.$A <= code && code <= chars.$Z) ||
+        (code == chars.$_) || (code == chars.$$);
 }
-function isIdentifier(input) {
+export function isIdentifier(input) {
     if (input.length == 0)
         return false;
     var scanner = new _Scanner(input);
     if (!isIdentifierStart(scanner.peek))
         return false;
     scanner.advance();
-    while (scanner.peek !== exports.$EOF) {
+    while (scanner.peek !== chars.$EOF) {
         if (!isIdentifierPart(scanner.peek))
             return false;
         scanner.advance();
     }
     return true;
 }
-exports.isIdentifier = isIdentifier;
 function isIdentifierPart(code) {
-    return ($a <= code && code <= $z) || ($A <= code && code <= $Z) || ($0 <= code && code <= $9) ||
-        (code == $_) || (code == exports.$$);
-}
-function isDigit(code) {
-    return $0 <= code && code <= $9;
+    return chars.isAsciiLetter(code) || chars.isDigit(code) || (code == chars.$_) ||
+        (code == chars.$$);
 }
 function isExponentStart(code) {
-    return code == $e || code == $E;
+    return code == chars.$e || code == chars.$E;
 }
 function isExponentSign(code) {
-    return code == exports.$MINUS || code == exports.$PLUS;
+    return code == chars.$MINUS || code == chars.$PLUS;
 }
-function isQuote(code) {
-    return code === exports.$SQ || code === exports.$DQ || code === exports.$BT;
+export function isQuote(code) {
+    return code === chars.$SQ || code === chars.$DQ || code === chars.$BT;
 }
-exports.isQuote = isQuote;
 function unescape(code) {
     switch (code) {
-        case $n:
-            return exports.$LF;
-        case $f:
-            return exports.$FF;
-        case $r:
-            return exports.$CR;
-        case $t:
-            return exports.$TAB;
-        case $v:
-            return exports.$VTAB;
+        case chars.$n:
+            return chars.$LF;
+        case chars.$f:
+            return chars.$FF;
+        case chars.$r:
+            return chars.$CR;
+        case chars.$t:
+            return chars.$TAB;
+        case chars.$v:
+            return chars.$VTAB;
         default:
             return code;
     }
 }
-var OPERATORS = collection_1.SetWrapper.createFromList([
-    '+',
-    '-',
-    '*',
-    '/',
-    '%',
-    '^',
-    '=',
-    '==',
-    '!=',
-    '===',
-    '!==',
-    '<',
-    '>',
-    '<=',
-    '>=',
-    '&&',
-    '||',
-    '&',
-    '|',
-    '!',
-    '?',
-    '#',
-    '?.'
-]);
-var KEYWORDS = collection_1.SetWrapper.createFromList(['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else']);
 //# sourceMappingURL=lexer.js.map

@@ -1,38 +1,37 @@
-import { CompileDirectiveMetadata, CompilePipeMetadata } from './compile_metadata';
-import { StyleCompiler } from './style_compiler';
-import { ViewCompiler } from './view_compiler/view_compiler';
-import { TemplateParser } from './template_parser';
+import { CompileNgModuleMetadata, StaticSymbol } from './compile_metadata';
 import { DirectiveNormalizer } from './directive_normalizer';
+import { CompileMetadataResolver } from './metadata_resolver';
+import { NgModuleCompiler } from './ng_module_compiler';
 import { OutputEmitter } from './output/abstract_emitter';
-import { XHR } from './xhr';
+import { StyleCompiler } from './style_compiler';
+import { TemplateParser } from './template_parser/template_parser';
+import { ViewCompiler } from './view_compiler/view_compiler';
 export declare class SourceModule {
     moduleUrl: string;
     source: string;
     constructor(moduleUrl: string, source: string);
 }
-export declare class StyleSheetSourceWithImports {
-    source: SourceModule;
-    importedUrls: string[];
-    constructor(source: SourceModule, importedUrls: string[]);
-}
-export declare class NormalizedComponentWithViewDirectives {
-    component: CompileDirectiveMetadata;
-    directives: CompileDirectiveMetadata[];
-    pipes: CompilePipeMetadata[];
-    constructor(component: CompileDirectiveMetadata, directives: CompileDirectiveMetadata[], pipes: CompilePipeMetadata[]);
+export declare class NgModulesSummary {
+    ngModuleByComponent: Map<StaticSymbol, CompileNgModuleMetadata>;
+    constructor(ngModuleByComponent: Map<StaticSymbol, CompileNgModuleMetadata>);
 }
 export declare class OfflineCompiler {
+    private _metadataResolver;
     private _directiveNormalizer;
     private _templateParser;
     private _styleCompiler;
     private _viewCompiler;
+    private _ngModuleCompiler;
     private _outputEmitter;
-    private _xhr;
-    constructor(_directiveNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _outputEmitter: OutputEmitter, _xhr: XHR);
-    normalizeDirectiveMetadata(directive: CompileDirectiveMetadata): Promise<CompileDirectiveMetadata>;
-    compileTemplates(components: NormalizedComponentWithViewDirectives[]): SourceModule;
-    loadAndCompileStylesheet(stylesheetUrl: string, shim: boolean, suffix: string): Promise<StyleSheetSourceWithImports>;
-    private _compileComponent(compMeta, directives, pipes, targetStatements);
-    private _codgenStyles(inputUrl, shim, suffix, stylesCompileResult);
+    private _localeId;
+    private _translationFormat;
+    constructor(_metadataResolver: CompileMetadataResolver, _directiveNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _ngModuleCompiler: NgModuleCompiler, _outputEmitter: OutputEmitter, _localeId: string, _translationFormat: string);
+    analyzeModules(ngModules: StaticSymbol[]): NgModulesSummary;
+    clearCache(): void;
+    compile(moduleUrl: string, ngModulesSummary: NgModulesSummary, components: StaticSymbol[], ngModules: StaticSymbol[]): Promise<SourceModule[]>;
+    private _compileModule(ngModuleType, targetStatements);
+    private _compileComponentFactory(compMeta, fileSuffix, targetStatements);
+    private _compileComponent(compMeta, directives, pipes, schemas, componentStyles, fileSuffix, targetStatements);
+    private _codgenStyles(stylesCompileResult, fileSuffix);
     private _codegenSourceModule(moduleUrl, statements, exportedVars);
 }

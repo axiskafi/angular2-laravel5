@@ -1,6 +1,13 @@
-import { ChangeDetectorRef, Injector, ComponentFactory, ComponentRef, SimpleChange } from '@angular/core';
-import { ComponentInfo } from './metadata';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ChangeDetectorRef, ComponentFactory, ComponentRef, Injector, SimpleChanges } from '@angular/core';
 import * as angular from './angular_js';
+import { ComponentInfo } from './metadata';
 export declare class DowngradeNg2ComponentAdapter {
     private id;
     private info;
@@ -12,9 +19,7 @@ export declare class DowngradeNg2ComponentAdapter {
     private componentFactory;
     component: any;
     inputChangeCount: number;
-    inputChanges: {
-        [key: string]: SimpleChange;
-    };
+    inputChanges: SimpleChanges;
     componentRef: ComponentRef<any>;
     changeDetector: ChangeDetectorRef;
     componentScope: angular.IScope;

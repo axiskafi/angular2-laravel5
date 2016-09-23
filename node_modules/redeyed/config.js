@@ -43,6 +43,7 @@ module.exports = {
     , 'do'          :  undefined
 
     , 'else'        :  undefined
+    , 'enum'        :  undefined
     , 'export'      :  undefined
     , 'extends'     :  undefined
 
@@ -51,11 +52,19 @@ module.exports = {
     , 'function'    :  undefined
 
     , 'if'          :  undefined
+    , 'implements'  :  undefined
     , 'import'      :  undefined
     , 'in'          :  undefined
     , 'instanceof'  :  undefined
+    , 'interface'   :  undefined
     , 'let'         :  undefined
     , 'new'         :  undefined
+
+    , 'package'     :  undefined
+    , 'private'     :  undefined
+    , 'protected'   :  undefined
+    , 'public'      :  undefined
+
     , 'return'      :  undefined
     , 'static'      :  undefined
     , 'super'       :  undefined

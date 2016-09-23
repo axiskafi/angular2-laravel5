@@ -1,11 +1,15 @@
+import { AnimationOutput } from '../animation/animation_output';
+import { AnimationPlayer } from '../animation/animation_player';
+import { AnimationTransitionEvent } from '../animation/animation_transition_event';
+import { ViewAnimationMap } from '../animation/view_animation_map';
+import { ChangeDetectorRef, ChangeDetectorStatus } from '../change_detection/change_detection';
+import { Injector } from '../di/injector';
+import { RenderComponentType, RenderDebugInfo, Renderer } from '../render/api';
+import { DebugContext, StaticNodeDebugInfo } from './debug_context';
 import { AppElement } from './element';
-import { Renderer, RenderComponentType, RenderDebugInfo } from '../render/api';
 import { ViewRef_ } from './view_ref';
 import { ViewType } from './view_type';
 import { ViewUtils } from './view_utils';
-import { ChangeDetectorRef, ChangeDetectionStrategy, ChangeDetectorState } from '../change_detection/change_detection';
-import { StaticNodeDebugInfo, DebugContext } from './debug_context';
-import { Injector } from '../di/injector';
 /**
  * Cost of making objects: http://jsperf.com/instantiate-size-of-object
  *
@@ -17,7 +21,7 @@ export declare abstract class AppView<T> {
     viewUtils: ViewUtils;
     parentInjector: Injector;
     declarationAppElement: AppElement;
-    cdMode: ChangeDetectionStrategy;
+    cdMode: ChangeDetectorStatus;
     ref: ViewRef_<T>;
     rootNodesOrAppElements: any[];
     allNodes: any[];
@@ -26,13 +30,19 @@ export declare abstract class AppView<T> {
     contentChildren: AppView<any>[];
     viewChildren: AppView<any>[];
     viewContainerElement: AppElement;
-    cdState: ChangeDetectorState;
+    numberOfChecks: number;
     projectableNodes: Array<any | any[]>;
-    destroyed: boolean;
     renderer: Renderer;
     private _hasExternalHostElement;
+    animationPlayers: ViewAnimationMap;
+    private _animationListeners;
     context: T;
-    constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils, parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectionStrategy);
+    constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils, parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectorStatus);
+    destroyed: boolean;
+    cancelActiveAnimation(element: any, animationName: string, removeAllAnimations?: boolean): void;
+    queueAnimation(element: any, animationName: string, player: AnimationPlayer, totalTime: number, fromState: string, toState: string): void;
+    triggerAnimationOutput(element: any, animationName: string, phase: string, event: AnimationTransitionEvent): void;
+    registerAnimationOutput(element: any, outputEvent: AnimationOutput, eventHandler: Function): void;
     create(context: T, givenProjectableNodes: Array<any | any[]>, rootSelectorOrNode: string | any): AppElement;
     /**
      * Overwritten by implementations.
@@ -54,6 +64,11 @@ export declare abstract class AppView<T> {
      * Overwritten by implementations
      */
     destroyInternal(): void;
+    /**
+     * Overwritten by implementations
+     */
+    detachInternal(): void;
+    detach(): void;
     changeDetectorRef: ChangeDetectorRef;
     parent: AppView<any>;
     flatRootNodes: any[];
@@ -69,23 +84,25 @@ export declare abstract class AppView<T> {
     detectChangesInternal(throwOnChange: boolean): void;
     detectContentChildrenChanges(throwOnChange: boolean): void;
     detectViewChildrenChanges(throwOnChange: boolean): void;
+    markContentChildAsMoved(renderAppElement: AppElement): void;
     addToContentChildren(renderAppElement: AppElement): void;
     removeFromContentChildren(renderAppElement: AppElement): void;
     markAsCheckOnce(): void;
     markPathToRootAsCheckOnce(): void;
-    eventHandler(cb: Function): Function;
+    eventHandler<E, R>(cb: (event?: E) => R): (event?: E) => R;
     throwDestroyedError(details: string): void;
 }
 export declare class DebugAppView<T> extends AppView<T> {
     staticNodeDebugInfos: StaticNodeDebugInfo[];
     private _currentDebugContext;
-    constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils, parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectionStrategy, staticNodeDebugInfos: StaticNodeDebugInfo[]);
+    constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils, parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectorStatus, staticNodeDebugInfos: StaticNodeDebugInfo[]);
     create(context: T, givenProjectableNodes: Array<any | any[]>, rootSelectorOrNode: string | any): AppElement;
     injectorGet(token: any, nodeIndex: number, notFoundResult: any): any;
+    detach(): void;
     destroyLocal(): void;
     detectChanges(throwOnChange: boolean): void;
     private _resetDebug();
     debug(nodeIndex: number, rowNum: number, colNum: number): DebugContext;
-    private _rethrowWithContext(e, stack);
-    eventHandler(cb: Function): Function;
+    private _rethrowWithContext(e);
+    eventHandler<E, R>(cb: (event?: E) => R): (event?: E) => R;
 }

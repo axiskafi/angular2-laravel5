@@ -1,11 +1,11 @@
-import {Observable, ObservableInput, SubscribableOrPromise} from '../Observable';
-import {Operator} from '../Operator';
-import {PartialObserver} from '../Observer';
-import {Subscriber} from '../Subscriber';
-import {Subscription} from '../Subscription';
-import {OuterSubscriber} from '../OuterSubscriber';
-import {InnerSubscriber} from '../InnerSubscriber';
-import {subscribeToResult} from '../util/subscribeToResult';
+import { Observable, ObservableInput } from '../Observable';
+import { Operator } from '../Operator';
+import { PartialObserver } from '../Observer';
+import { Subscriber } from '../Subscriber';
+import { Subscription } from '../Subscription';
+import { OuterSubscriber } from '../OuterSubscriber';
+import { InnerSubscriber } from '../InnerSubscriber';
+import { subscribeToResult } from '../util/subscribeToResult';
 
 /**
  * Projects each source value to the same Observable which is merged multiple
@@ -70,7 +70,7 @@ export interface MergeMapToSignature<T> {
 // TODO: Figure out correct signature here: an Operator<Observable<T>, R>
 //       needs to implement call(observer: Subscriber<R>): Subscriber<Observable<T>>
 export class MergeMapToOperator<T, I, R> implements Operator<Observable<T>, R> {
-  constructor(private ish: SubscribableOrPromise<I>,
+  constructor(private ish: ObservableInput<I>,
               private resultSelector?: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R,
               private concurrent: number = Number.POSITIVE_INFINITY) {
   }
@@ -87,18 +87,18 @@ export class MergeMapToOperator<T, I, R> implements Operator<Observable<T>, R> {
  */
 export class MergeMapToSubscriber<T, I, R> extends OuterSubscriber<T, I> {
   private hasCompleted: boolean = false;
-  private buffer: Observable<any>[] = [];
+  private buffer: T[] = [];
   private active: number = 0;
   protected index: number = 0;
 
   constructor(destination: Subscriber<R>,
-              private ish: SubscribableOrPromise<I>,
+              private ish: ObservableInput<I>,
               private resultSelector?: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R,
               private concurrent: number = Number.POSITIVE_INFINITY) {
     super(destination);
   }
 
-  protected _next(value: any): void {
+  protected _next(value: T): void {
     if (this.active < this.concurrent) {
       const resultSelector = this.resultSelector;
       const index = this.index++;
@@ -112,7 +112,7 @@ export class MergeMapToSubscriber<T, I, R> extends OuterSubscriber<T, I> {
     }
   }
 
-  private _innerSub(ish: any,
+  private _innerSub(ish: ObservableInput<I>,
                     destination: PartialObserver<I>,
                     resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R,
                     value: T,

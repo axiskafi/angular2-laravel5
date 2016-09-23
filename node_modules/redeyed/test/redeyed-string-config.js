@@ -52,6 +52,8 @@ test('\nstring config, keywords', function (t) {
         ].join('\n'))
     t.end()
   })
+
+  t.end()
 })
 
 test('\nstring configs resolve from type and root', function (t) {
@@ -118,6 +120,7 @@ test('\nstring configs resolve from type and root', function (t) {
 
   t.test('all exact tokens undefined, but type default', function (t) {
     run(t, { 'Boolean': { 'true': undefined, 'false': undefined, _default: '+:-' } }, 'return +true- || +false-;', 'return true || false;')
+    t.end()
   })
   
   t.end()

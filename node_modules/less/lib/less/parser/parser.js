@@ -261,7 +261,7 @@ var Parser = function Parser(context, imports, fileInfo) {
                     }
 
                     node = mixin.definition() || this.rule() || this.ruleset() ||
-                        mixin.call() || this.rulesetCall() || this.directive();
+                        mixin.call() || this.rulesetCall() || this.entities.call() || this.directive();
                     if (node) {
                         root.push(node);
                     } else {
@@ -370,19 +370,51 @@ var Parser = function Parser(context, imports, fileInfo) {
                     return new(tree.Call)(name, args, index, fileInfo);
                 },
                 arguments: function () {
-                    var args = [], arg;
+                    var argsSemiColon = [], argsComma = [],
+                        expressions = [],
+                        isSemiColonSeparated, value, arg;
+
+                    parserInput.save();
 
                     while (true) {
-                        arg = this.assignment() || parsers.expression();
+
+                        arg = parsers.detachedRuleset() || this.assignment() || parsers.expression();
+
                         if (!arg) {
                             break;
                         }
-                        args.push(arg);
-                        if (! parserInput.$char(',')) {
-                            break;
+
+                        value = arg;
+
+                        if (arg.value && arg.value.length == 1) {
+                            value = arg.value[0];
+                        }
+
+                        if (value) {
+                            expressions.push(value);
+                        }
+
+                        argsComma.push(value);
+
+                        if (parserInput.$char(',')) {
+                            continue;
+                        }
+
+                        if (parserInput.$char(';') || isSemiColonSeparated) {
+
+                            isSemiColonSeparated = true;
+
+                            if (expressions.length > 1) {
+                                value = new(tree.Value)(expressions);
+                            }
+                            argsSemiColon.push(value);
+
+                            expressions = [];
                         }
                     }
-                    return args;
+
+                    parserInput.forget();
+                    return isSemiColonSeparated ? argsSemiColon : argsComma;
                 },
                 literal: function () {
                     return this.dimension() ||
@@ -462,7 +494,7 @@ var Parser = function Parser(context, imports, fileInfo) {
                     }
                 },
 
-                // A variable entity useing the protective {} e.g. @{var}
+                // A variable entity using the protective {} e.g. @{var}
                 variableCurly: function () {
                     var curly, index = parserInput.i;
 
@@ -497,7 +529,7 @@ var Parser = function Parser(context, imports, fileInfo) {
                     parserInput.save();
                     var autoCommentAbsorb = parserInput.autoCommentAbsorb;
                     parserInput.autoCommentAbsorb = false;
-                    var k = parserInput.$re(/^[A-Za-z]+/);
+                    var k = parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]+/);
                     parserInput.autoCommentAbsorb = autoCommentAbsorb;
                     if (!k) {
                         parserInput.forget();
@@ -899,7 +931,7 @@ var Parser = function Parser(context, imports, fileInfo) {
             //
             // A Rule terminator. Note that we use `peek()` to check for '}',
             // because the `block` rule will be expecting it, but we still need to make sure
-            // it's there, if ';' was ommitted.
+            // it's there, if ';' was omitted.
             //
             end: function () {
                 return parserInput.$char(';') || parserInput.peek('}');
@@ -1321,10 +1353,10 @@ var Parser = function Parser(context, imports, fileInfo) {
             },
 
             media: function () {
-                var features, rules, media, debugInfo;
+                var features, rules, media, debugInfo, index = parserInput.i;
 
                 if (context.dumpLineNumbers) {
-                    debugInfo = getDebugInfo(parserInput.i);
+                    debugInfo = getDebugInfo(index);
                 }
 
                 parserInput.save();
@@ -1340,7 +1372,7 @@ var Parser = function Parser(context, imports, fileInfo) {
 
                     parserInput.forget();
 
-                    media = new(tree.Media)(rules, features, parserInput.i, fileInfo);
+                    media = new(tree.Media)(rules, features, index, fileInfo);
                     if (context.dumpLineNumbers) {
                         media.debugInfo = debugInfo;
                     }

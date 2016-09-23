@@ -41,14 +41,16 @@ elixir(function (mix) {
     mix.copy('resources/assets/vendors/font-awesome/fonts', 'public/fonts');
 
     //CSS Libraries
+    /*
     mix.styles([paths.fontawesome + "/css/font-awesome.min.css",
         paths.jqueryUi + "/themes/base/core.css",
         paths.tether + '/css/tether.css',
         paths.eonasdanBootstrapDatetimepicker + '/css/bootstrap-datetimepicker.css'
     ], 'public/css/styles.css');
-
+*/
 
     //JS Libraries
+    /*
     mix.scripts([paths.jquery + "/jquery.js",
         paths.jqueryUi + "/jquery-ui.min.js",
         paths.tether + '/js/tether.js',
@@ -56,7 +58,7 @@ elixir(function (mix) {
         paths.moment + '/moment.js',
         paths.eonasdanBootstrapDatetimepicker + '/js/bootstrap-datetimepicker.min.js'
     ], 'public/js/scripts.js');
-
+*/
 
     mix.typescript(
         '/**/*.ts',

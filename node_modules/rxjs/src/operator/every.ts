@@ -1,7 +1,7 @@
-import {Operator} from '../Operator';
-import {Observer} from '../Observer';
-import {Observable} from '../Observable';
-import {Subscriber} from '../Subscriber';
+import { Operator } from '../Operator';
+import { Observer } from '../Observer';
+import { Observable } from '../Observable';
+import { Subscriber } from '../Subscriber';
 
 /**
  * Returns an Observable that emits whether or not every item of the source satisfies the condition specified.
@@ -13,8 +13,7 @@ import {Subscriber} from '../Subscriber';
  */
 export function every<T>(predicate: (value: T, index: number, source: Observable<T>) => boolean,
                          thisArg?: any): Observable<boolean> {
-  const source = this;
-  return source.lift(new EveryOperator(predicate, thisArg, source));
+  return this.lift(new EveryOperator(predicate, thisArg, this));
 }
 
 export interface EverySignature<T> {

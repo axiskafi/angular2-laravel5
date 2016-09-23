@@ -2,15 +2,15 @@
 
 exports.__esModule = true;
 
-var _defineProperty = require("babel-runtime/core-js/object/define-property");
+var _defineProperty = require("../core-js/object/define-property");
 
 var _defineProperty2 = _interopRequireDefault(_defineProperty);
 
-var _getOwnPropertyDescriptor = require("babel-runtime/core-js/object/get-own-property-descriptor");
+var _getOwnPropertyDescriptor = require("../core-js/object/get-own-property-descriptor");
 
 var _getOwnPropertyDescriptor2 = _interopRequireDefault(_getOwnPropertyDescriptor);
 
-var _getOwnPropertyNames = require("babel-runtime/core-js/object/get-own-property-names");
+var _getOwnPropertyNames = require("../core-js/object/get-own-property-names");
 
 var _getOwnPropertyNames2 = _interopRequireDefault(_getOwnPropertyNames);
 

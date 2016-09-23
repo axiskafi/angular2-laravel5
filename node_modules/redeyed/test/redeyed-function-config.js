@@ -68,6 +68,8 @@ test('\nfunction config, keywords', function (t) {
         ].join('\n'))
     t.end()
   })
+
+  t.end()
 })
 
 test('#\n functin config - resolving', function (t) {
@@ -91,6 +93,8 @@ test('#\n functin config - resolving', function (t) {
   t.test('\n# no type default but root default' + inspect(opts002), function (t) {
     t.assertSurrounds('var n = new Test();', opts002, '^var& n = *new& Test();').end();
   })
+
+  t.end()
 })
 
 test('#\n function config - replacing', function (t) {
@@ -139,4 +143,6 @@ test('#\n function config - replacing', function (t) {
   t.test('\n# no type default only root default - not applied' + inspect(opts005), function (t) {
     t.assertSurrounds('var n = new Test();', opts005, 'var n = new Test();').end();
   })
+
+  t.end()
 })

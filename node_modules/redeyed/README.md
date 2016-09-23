@@ -132,6 +132,10 @@ try {
 ***opts***:
 ```js
 { // {Boolean}
+  // if true `result.ast` property contains the abstract syntax tree of the code
+  // if false (default) `result.ast` is not assigned and therefore `undefined`
+  buildAst: true|false
+  // {Boolean}
   // if true `result.code` is not assigned and therefore `undefined`
   // if false (default) `result.code` property contains the result of `split.join`
   nojoin: true|false

@@ -1,21 +1,48 @@
-"use strict";
-var lang_1 = require('../src/facade/lang');
-var collection_1 = require('../src/facade/collection');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ListWrapper, Map, isListLikeIterable } from '../src/facade/collection';
+import { isPresent } from '../src/facade/lang';
 function paramParser(rawParams) {
     if (rawParams === void 0) { rawParams = ''; }
-    var map = new collection_1.Map();
+    var map = new Map();
     if (rawParams.length > 0) {
         var params = rawParams.split('&');
         params.forEach(function (param) {
-            var split = param.split('=');
-            var key = split[0];
-            var val = split[1];
-            var list = lang_1.isPresent(map.get(key)) ? map.get(key) : [];
+            var eqIdx = param.indexOf('=');
+            var _a = eqIdx == -1 ? [param, ''] : [param.slice(0, eqIdx), param.slice(eqIdx + 1)], key = _a[0], val = _a[1];
+            var list = map.get(key) || [];
             list.push(val);
             map.set(key, list);
         });
     }
     return map;
+}
+/**
+ * @experimental
+ **/
+export var QueryEncoder = (function () {
+    function QueryEncoder() {
+    }
+    QueryEncoder.prototype.encodeKey = function (k) { return standardEncoding(k); };
+    QueryEncoder.prototype.encodeValue = function (v) { return standardEncoding(v); };
+    return QueryEncoder;
+}());
+function standardEncoding(v) {
+    return encodeURIComponent(v)
+        .replace(/%40/gi, '@')
+        .replace(/%3A/gi, ':')
+        .replace(/%24/gi, '$')
+        .replace(/%2C/gi, ',')
+        .replace(/%3B/gi, ';')
+        .replace(/%2B/gi, '+')
+        .replace(/%3D/gi, '=')
+        .replace(/%3F/gi, '?')
+        .replace(/%2F/gi, '/');
 }
 /**
  * Map-like representation of url search parameters, based on
@@ -24,23 +51,52 @@ function paramParser(rawParams) {
  *   - setAll()
  *   - appendAll()
  *   - replaceAll()
+ *
+ * This class accepts an optional second parameter of ${@link QueryEncoder},
+ * which is used to serialize parameters before making a request. By default,
+ * `QueryEncoder` encodes keys and values of parameters using `encodeURIComponent`,
+ * and then un-encodes certain characters that are allowed to be part of the query
+ * according to IETF RFC 3986: https://tools.ietf.org/html/rfc3986.
+ *
+ * These are the characters that are not encoded: `! $ \' ( ) * + , ; A 9 - . _ ~ ? /`
+ *
+ * If the set of allowed query characters is not acceptable for a particular backend,
+ * `QueryEncoder` can be subclassed and provided as the 2nd argument to URLSearchParams.
+ *
+ * ```
+ * import {URLSearchParams, QueryEncoder} from '@angular/http';
+ * class MyQueryEncoder extends QueryEncoder {
+ *   encodeKey(k: string): string {
+ *     return myEncodingFunction(k);
+ *   }
+ *
+ *   encodeValue(v: string): string {
+ *     return myEncodingFunction(v);
+ *   }
+ * }
+ *
+ * let params = new URLSearchParams('', new MyQueryEncoder());
+ * ```
+ * @experimental
  */
-var URLSearchParams = (function () {
-    function URLSearchParams(rawParams) {
+export var URLSearchParams = (function () {
+    function URLSearchParams(rawParams, queryEncoder) {
         if (rawParams === void 0) { rawParams = ''; }
+        if (queryEncoder === void 0) { queryEncoder = new QueryEncoder(); }
         this.rawParams = rawParams;
+        this.queryEncoder = queryEncoder;
         this.paramsMap = paramParser(rawParams);
     }
     URLSearchParams.prototype.clone = function () {
-        var clone = new URLSearchParams();
+        var clone = new URLSearchParams('', this.queryEncoder);
         clone.appendAll(this);
         return clone;
     };
     URLSearchParams.prototype.has = function (param) { return this.paramsMap.has(param); };
     URLSearchParams.prototype.get = function (param) {
         var storedParam = this.paramsMap.get(param);
-        if (collection_1.isListLikeIterable(storedParam)) {
-            return collection_1.ListWrapper.first(storedParam);
+        if (isListLikeIterable(storedParam)) {
+            return ListWrapper.first(storedParam);
         }
         else {
             return null;
@@ -48,12 +104,12 @@ var URLSearchParams = (function () {
     };
     URLSearchParams.prototype.getAll = function (param) {
         var mapParam = this.paramsMap.get(param);
-        return lang_1.isPresent(mapParam) ? mapParam : [];
+        return isPresent(mapParam) ? mapParam : [];
     };
     URLSearchParams.prototype.set = function (param, val) {
         var mapParam = this.paramsMap.get(param);
-        var list = lang_1.isPresent(mapParam) ? mapParam : [];
-        collection_1.ListWrapper.clear(list);
+        var list = isPresent(mapParam) ? mapParam : [];
+        ListWrapper.clear(list);
         list.push(val);
         this.paramsMap.set(param, list);
     };
@@ -67,15 +123,15 @@ var URLSearchParams = (function () {
         var _this = this;
         searchParams.paramsMap.forEach(function (value, param) {
             var mapParam = _this.paramsMap.get(param);
-            var list = lang_1.isPresent(mapParam) ? mapParam : [];
-            collection_1.ListWrapper.clear(list);
+            var list = isPresent(mapParam) ? mapParam : [];
+            ListWrapper.clear(list);
             list.push(value[0]);
             _this.paramsMap.set(param, list);
         });
     };
     URLSearchParams.prototype.append = function (param, val) {
         var mapParam = this.paramsMap.get(param);
-        var list = lang_1.isPresent(mapParam) ? mapParam : [];
+        var list = isPresent(mapParam) ? mapParam : [];
         list.push(val);
         this.paramsMap.set(param, list);
     };
@@ -90,7 +146,7 @@ var URLSearchParams = (function () {
         var _this = this;
         searchParams.paramsMap.forEach(function (value, param) {
             var mapParam = _this.paramsMap.get(param);
-            var list = lang_1.isPresent(mapParam) ? mapParam : [];
+            var list = isPresent(mapParam) ? mapParam : [];
             for (var i = 0; i < value.length; ++i) {
                 list.push(value[i]);
             }
@@ -108,8 +164,8 @@ var URLSearchParams = (function () {
         var _this = this;
         searchParams.paramsMap.forEach(function (value, param) {
             var mapParam = _this.paramsMap.get(param);
-            var list = lang_1.isPresent(mapParam) ? mapParam : [];
-            collection_1.ListWrapper.clear(list);
+            var list = isPresent(mapParam) ? mapParam : [];
+            ListWrapper.clear(list);
             for (var i = 0; i < value.length; ++i) {
                 list.push(value[i]);
             }
@@ -117,12 +173,14 @@ var URLSearchParams = (function () {
         });
     };
     URLSearchParams.prototype.toString = function () {
+        var _this = this;
         var paramsList = [];
-        this.paramsMap.forEach(function (values, k) { values.forEach(function (v) { return paramsList.push(k + '=' + v); }); });
+        this.paramsMap.forEach(function (values, k) {
+            values.forEach(function (v) { return paramsList.push(_this.queryEncoder.encodeKey(k) + '=' + _this.queryEncoder.encodeValue(v)); });
+        });
         return paramsList.join('&');
     };
     URLSearchParams.prototype.delete = function (param) { this.paramsMap.delete(param); };
     return URLSearchParams;
 }());
-exports.URLSearchParams = URLSearchParams;
 //# sourceMappingURL=url_search_params.js.map

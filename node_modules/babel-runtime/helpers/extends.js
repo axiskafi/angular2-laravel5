@@ -2,7 +2,7 @@
 
 exports.__esModule = true;
 
-var _assign = require("babel-runtime/core-js/object/assign");
+var _assign = require("../core-js/object/assign");
 
 var _assign2 = _interopRequireDefault(_assign);
 

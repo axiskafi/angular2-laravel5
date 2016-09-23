@@ -1,9 +1,17 @@
-"use strict";
 /**
- * Defines template and style encapsulation options available for Component's {@link View}.
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
+ * Defines template and style encapsulation options available for Component's {@link Component}.
  *
  * See {@link ViewMetadata#encapsulation}.
+ * @stable
  */
+export var ViewEncapsulation;
 (function (ViewEncapsulation) {
     /**
      * Emulate `Native` scoping of styles by adding an attribute containing surrogate id to the Host
@@ -25,9 +33,8 @@
      * Don't provide any template or style encapsulation.
      */
     ViewEncapsulation[ViewEncapsulation["None"] = 2] = "None";
-})(exports.ViewEncapsulation || (exports.ViewEncapsulation = {}));
-var ViewEncapsulation = exports.ViewEncapsulation;
-exports.VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsulation.Native, ViewEncapsulation.None];
+})(ViewEncapsulation || (ViewEncapsulation = {}));
+export var VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsulation.Native, ViewEncapsulation.None];
 /**
  * Metadata properties available for configuring Views.
  *
@@ -38,7 +45,7 @@ exports.VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsulati
  * When a component is instantiated, the template is loaded into the component's shadow root, and
  * the expressions and statements in the template are evaluated against the component.
  *
- * For details on the `@Component` annotation, see {@link ComponentMetadata}.
+ * For details on the `@Component` annotation, see {@link Component}.
  *
  * ### Example
  *
@@ -56,20 +63,20 @@ exports.VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsulati
  *   }
  * }
  * ```
- * @ts2dart_const
+ *
+ * @deprecated Use Component instead.
  */
-var ViewMetadata = (function () {
+export var ViewMetadata = (function () {
     function ViewMetadata(_a) {
-        var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, directives = _b.directives, pipes = _b.pipes, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls;
+        var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls, animations = _b.animations, interpolation = _b.interpolation;
         this.templateUrl = templateUrl;
         this.template = template;
         this.styleUrls = styleUrls;
         this.styles = styles;
-        this.directives = directives;
-        this.pipes = pipes;
         this.encapsulation = encapsulation;
+        this.animations = animations;
+        this.interpolation = interpolation;
     }
     return ViewMetadata;
 }());
-exports.ViewMetadata = ViewMetadata;
 //# sourceMappingURL=view.js.map

@@ -1,17 +1,20 @@
-"use strict";
-var collection_1 = require('../../../src/facade/collection');
-var lang_1 = require('../../../src/facade/lang');
-var exceptions_1 = require('../../../src/facade/exceptions');
-/* @ts2dart_const */
-var DefaultKeyValueDifferFactory = (function () {
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { StringMapWrapper } from '../../facade/collection';
+import { isJsObject, looseIdentical, stringify } from '../../facade/lang';
+export var DefaultKeyValueDifferFactory = (function () {
     function DefaultKeyValueDifferFactory() {
     }
-    DefaultKeyValueDifferFactory.prototype.supports = function (obj) { return obj instanceof Map || lang_1.isJsObject(obj); };
+    DefaultKeyValueDifferFactory.prototype.supports = function (obj) { return obj instanceof Map || isJsObject(obj); };
     DefaultKeyValueDifferFactory.prototype.create = function (cdRef) { return new DefaultKeyValueDiffer(); };
     return DefaultKeyValueDifferFactory;
 }());
-exports.DefaultKeyValueDifferFactory = DefaultKeyValueDifferFactory;
-var DefaultKeyValueDiffer = (function () {
+export var DefaultKeyValueDiffer = (function () {
     function DefaultKeyValueDiffer() {
         this._records = new Map();
         this._mapHead = null;
@@ -62,17 +65,13 @@ var DefaultKeyValueDiffer = (function () {
         }
     };
     DefaultKeyValueDiffer.prototype.diff = function (map) {
-        if (lang_1.isBlank(map))
-            map = collection_1.MapWrapper.createFromPairs([]);
-        if (!(map instanceof Map || lang_1.isJsObject(map))) {
-            throw new exceptions_1.BaseException("Error trying to diff '" + map + "'");
+        if (!map) {
+            map = new Map();
         }
-        if (this.check(map)) {
-            return this;
+        else if (!(map instanceof Map || isJsObject(map))) {
+            throw new Error("Error trying to diff '" + map + "'");
         }
-        else {
-            return null;
-        }
+        return this.check(map) ? this : null;
     };
     DefaultKeyValueDiffer.prototype.onDestroy = function () { };
     DefaultKeyValueDiffer.prototype.check = function (map) {
@@ -85,23 +84,19 @@ var DefaultKeyValueDiffer = (function () {
         var seqChanged = false;
         this._forEach(map, function (value, key) {
             var newSeqRecord;
-            if (oldSeqRecord !== null && key === oldSeqRecord.key) {
+            if (oldSeqRecord && key === oldSeqRecord.key) {
                 newSeqRecord = oldSeqRecord;
-                if (!lang_1.looseIdentical(value, oldSeqRecord.currentValue)) {
-                    oldSeqRecord.previousValue = oldSeqRecord.currentValue;
-                    oldSeqRecord.currentValue = value;
-                    _this._addToChanges(oldSeqRecord);
-                }
+                _this._maybeAddToChanges(newSeqRecord, value);
             }
             else {
                 seqChanged = true;
                 if (oldSeqRecord !== null) {
-                    oldSeqRecord._next = null;
                     _this._removeFromSeq(lastOldSeqRecord, oldSeqRecord);
                     _this._addToRemovals(oldSeqRecord);
                 }
                 if (records.has(key)) {
                     newSeqRecord = records.get(key);
+                    _this._maybeAddToChanges(newSeqRecord, value);
                 }
                 else {
                     newSeqRecord = new KeyValueChangeRecord(key);
@@ -123,7 +118,7 @@ var DefaultKeyValueDiffer = (function () {
             }
             lastOldSeqRecord = oldSeqRecord;
             lastNewSeqRecord = newSeqRecord;
-            oldSeqRecord = oldSeqRecord === null ? null : oldSeqRecord._next;
+            oldSeqRecord = oldSeqRecord && oldSeqRecord._next;
         });
         this._truncate(lastOldSeqRecord, oldSeqRecord);
         return this.isDirty;
@@ -131,7 +126,7 @@ var DefaultKeyValueDiffer = (function () {
     /** @internal */
     DefaultKeyValueDiffer.prototype._reset = function () {
         if (this.isDirty) {
-            var record;
+            var record = void 0;
             // Record the state of the mapping
             for (record = this._previousMapHead = this._mapHead; record !== null; record = record._next) {
                 record._nextPrevious = record._next;
@@ -142,31 +137,6 @@ var DefaultKeyValueDiffer = (function () {
             for (record = this._additionsHead; record != null; record = record._nextAdded) {
                 record.previousValue = record.currentValue;
             }
-            // todo(vicb) once assert is supported
-            // assert(() {
-            //  var r = _changesHead;
-            //  while (r != null) {
-            //    var nextRecord = r._nextChanged;
-            //    r._nextChanged = null;
-            //    r = nextRecord;
-            //  }
-            //
-            //  r = _additionsHead;
-            //  while (r != null) {
-            //    var nextRecord = r._nextAdded;
-            //    r._nextAdded = null;
-            //    r = nextRecord;
-            //  }
-            //
-            //  r = _removalsHead;
-            //  while (r != null) {
-            //    var nextRecord = r._nextRemoved;
-            //    r._nextRemoved = null;
-            //    r = nextRecord;
-            //  }
-            //
-            //  return true;
-            //});
             this._changesHead = this._changesTail = null;
             this._additionsHead = this._additionsTail = null;
             this._removalsHead = this._removalsTail = null;
@@ -182,11 +152,6 @@ var DefaultKeyValueDiffer = (function () {
                 lastRecord._next = null;
             }
             var nextRecord = record._next;
-            // todo(vicb) assert
-            // assert((() {
-            //  record._next = null;
-            //  return true;
-            //}));
             this._addToRemovals(record);
             lastRecord = record;
             record = nextRecord;
@@ -197,6 +162,13 @@ var DefaultKeyValueDiffer = (function () {
             this._records.delete(rec.key);
         }
     };
+    DefaultKeyValueDiffer.prototype._maybeAddToChanges = function (record, newValue) {
+        if (!looseIdentical(newValue, record.currentValue)) {
+            record.previousValue = record.currentValue;
+            record.currentValue = newValue;
+            this._addToChanges(record);
+        }
+    };
     /** @internal */
     DefaultKeyValueDiffer.prototype._isInRemovals = function (record) {
         return record === this._removalsHead || record._nextRemoved !== null ||
@@ -204,12 +176,6 @@ var DefaultKeyValueDiffer = (function () {
     };
     /** @internal */
     DefaultKeyValueDiffer.prototype._addToRemovals = function (record) {
-        // todo(vicb) assert
-        // assert(record._next == null);
-        // assert(record._nextAdded == null);
-        // assert(record._nextChanged == null);
-        // assert(record._nextRemoved == null);
-        // assert(record._prevRemoved == null);
         if (this._removalsHead === null) {
             this._removalsHead = this._removalsTail = record;
         }
@@ -228,18 +194,10 @@ var DefaultKeyValueDiffer = (function () {
         else {
             prev._next = next;
         }
-        // todo(vicb) assert
-        // assert((() {
-        //  record._next = null;
-        //  return true;
-        //})());
+        record._next = null;
     };
     /** @internal */
     DefaultKeyValueDiffer.prototype._removeFromRemovals = function (record) {
-        // todo(vicb) assert
-        // assert(record._next == null);
-        // assert(record._nextAdded == null);
-        // assert(record._nextChanged == null);
         var prev = record._prevRemoved;
         var next = record._nextRemoved;
         if (prev === null) {
@@ -258,12 +216,6 @@ var DefaultKeyValueDiffer = (function () {
     };
     /** @internal */
     DefaultKeyValueDiffer.prototype._addToAdditions = function (record) {
-        // todo(vicb): assert
-        // assert(record._next == null);
-        // assert(record._nextAdded == null);
-        // assert(record._nextChanged == null);
-        // assert(record._nextRemoved == null);
-        // assert(record._prevRemoved == null);
         if (this._additionsHead === null) {
             this._additionsHead = this._additionsTail = record;
         }
@@ -274,11 +226,6 @@ var DefaultKeyValueDiffer = (function () {
     };
     /** @internal */
     DefaultKeyValueDiffer.prototype._addToChanges = function (record) {
-        // todo(vicb) assert
-        // assert(record._nextAdded == null);
-        // assert(record._nextChanged == null);
-        // assert(record._nextRemoved == null);
-        // assert(record._prevRemoved == null);
         if (this._changesHead === null) {
             this._changesHead = this._changesTail = record;
         }
@@ -295,23 +242,25 @@ var DefaultKeyValueDiffer = (function () {
         var removals = [];
         var record;
         for (record = this._mapHead; record !== null; record = record._next) {
-            items.push(lang_1.stringify(record));
+            items.push(stringify(record));
         }
         for (record = this._previousMapHead; record !== null; record = record._nextPrevious) {
-            previous.push(lang_1.stringify(record));
+            previous.push(stringify(record));
         }
         for (record = this._changesHead; record !== null; record = record._nextChanged) {
-            changes.push(lang_1.stringify(record));
+            changes.push(stringify(record));
         }
         for (record = this._additionsHead; record !== null; record = record._nextAdded) {
-            additions.push(lang_1.stringify(record));
+            additions.push(stringify(record));
         }
         for (record = this._removalsHead; record !== null; record = record._nextRemoved) {
-            removals.push(lang_1.stringify(record));
+            removals.push(stringify(record));
         }
-        return "map: " + items.join(', ') + "\n" + "previous: " + previous.join(', ') + "\n" +
-            "additions: " + additions.join(', ') + "\n" + "changes: " + changes.join(', ') + "\n" +
-            "removals: " + removals.join(', ') + "\n";
+        return 'map: ' + items.join(', ') + '\n' +
+            'previous: ' + previous.join(', ') + '\n' +
+            'additions: ' + additions.join(', ') + '\n' +
+            'changes: ' + changes.join(', ') + '\n' +
+            'removals: ' + removals.join(', ') + '\n';
     };
     /** @internal */
     DefaultKeyValueDiffer.prototype._forEach = function (obj, fn) {
@@ -319,13 +268,15 @@ var DefaultKeyValueDiffer = (function () {
             obj.forEach(fn);
         }
         else {
-            collection_1.StringMapWrapper.forEach(obj, fn);
+            StringMapWrapper.forEach(obj, fn);
         }
     };
     return DefaultKeyValueDiffer;
 }());
-exports.DefaultKeyValueDiffer = DefaultKeyValueDiffer;
-var KeyValueChangeRecord = (function () {
+/**
+ * @stable
+ */
+export var KeyValueChangeRecord = (function () {
     function KeyValueChangeRecord(key) {
         this.key = key;
         this.previousValue = null;
@@ -344,12 +295,11 @@ var KeyValueChangeRecord = (function () {
         this._nextChanged = null;
     }
     KeyValueChangeRecord.prototype.toString = function () {
-        return lang_1.looseIdentical(this.previousValue, this.currentValue) ?
-            lang_1.stringify(this.key) :
-            (lang_1.stringify(this.key) + '[' + lang_1.stringify(this.previousValue) + '->' +
-                lang_1.stringify(this.currentValue) + ']');
+        return looseIdentical(this.previousValue, this.currentValue) ?
+            stringify(this.key) :
+            (stringify(this.key) + '[' + stringify(this.previousValue) + '->' +
+                stringify(this.currentValue) + ']');
     };
     return KeyValueChangeRecord;
 }());
-exports.KeyValueChangeRecord = KeyValueChangeRecord;
 //# sourceMappingURL=default_keyvalue_differ.js.map

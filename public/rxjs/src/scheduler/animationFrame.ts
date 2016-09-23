@@ -1,3 +1,4 @@
-import {AnimationFrameScheduler} from './AnimationFrameScheduler';
+import { AnimationFrameAction } from './AnimationFrameAction';
+import { AnimationFrameScheduler } from './AnimationFrameScheduler';
 
-export const animationFrame = new AnimationFrameScheduler();
+export const animationFrame = new AnimationFrameScheduler(AnimationFrameAction);

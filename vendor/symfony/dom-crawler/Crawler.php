@@ -319,7 +319,7 @@ class Crawler implements \Countable, \IteratorAggregate
      *
      * @param int $position The position
      *
-     * @return Crawler A new instance of the Crawler with the selected node, or an empty Crawler if it does not exist.
+     * @return Crawler A new instance of the Crawler with the selected node, or an empty Crawler if it does not exist
      */
     public function eq($position)
     {
@@ -376,7 +376,7 @@ class Crawler implements \Countable, \IteratorAggregate
      *
      * @param \Closure $closure An anonymous function
      *
-     * @return Crawler A Crawler instance with the selected nodes.
+     * @return Crawler A Crawler instance with the selected nodes
      */
     public function reduce(\Closure $closure)
     {
@@ -1032,6 +1032,7 @@ class Crawler implements \Countable, \IteratorAggregate
         $crawler = new static($nodes, $this->uri, $this->baseHref);
         $crawler->isHtml = $this->isHtml;
         $crawler->document = $this->document;
+        $crawler->namespaces = $this->namespaces;
 
         return $crawler;
     }

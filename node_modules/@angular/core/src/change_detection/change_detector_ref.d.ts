@@ -1,3 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
+ * @stable
+ */
 export declare abstract class ChangeDetectorRef {
     /**
      * Marks all {@link ChangeDetectionStrategy#OnPush} ancestors as to be checked.
@@ -34,8 +44,6 @@ export declare abstract class ChangeDetectorRef {
      * })
      * class App {
      * }
-     *
-     * bootstrap(App);
      * ```
      */
     abstract markForCheck(): void;
@@ -92,8 +100,6 @@ export declare abstract class ChangeDetectorRef {
      * })
      * class App {
      * }
-     *
-     * bootstrap(App);
      * ```
      */
     abstract detach(): void;
@@ -180,8 +186,6 @@ export declare abstract class ChangeDetectorRef {
      * class App {
      *   live = true;
      * }
-     *
-     * bootstrap(App);
      * ```
      */
     abstract reattach(): void;

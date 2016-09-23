@@ -22,7 +22,7 @@ usage();
 //=> and exit with code 0.
 ```
 
-This will listen for `-h`, `-help` or `--help`` passed
+This will listen for `-h`, `-help` or `--help` passed
 into your CLI and try to locate a `usage.md` file from
 the directory of the file. If `help` is passed and the
 `usage.md` file found, the usage will be printed and

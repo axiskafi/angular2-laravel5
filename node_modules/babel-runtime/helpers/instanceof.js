@@ -2,11 +2,11 @@
 
 exports.__esModule = true;
 
-var _hasInstance = require("babel-runtime/core-js/symbol/has-instance");
+var _hasInstance = require("../core-js/symbol/has-instance");
 
 var _hasInstance2 = _interopRequireDefault(_hasInstance);
 
-var _symbol = require("babel-runtime/core-js/symbol");
+var _symbol = require("../core-js/symbol");
 
 var _symbol2 = _interopRequireDefault(_symbol);
 

@@ -2,41 +2,42 @@
 var parse = require('spdx-expression-parse')
 var assert = require('assert')
 
-var firstAST = {
-  left: { license: 'LGPL-2.1' },
-  conjunction: 'or',
-  right: {
-    left: { license: 'BSD-3-Clause' },
-    conjunction: 'and',
-    right: { license: 'MIT' } } }
-
 assert.deepEqual(
   parse('(LGPL-2.1 OR BSD-3-Clause AND MIT)'),
-  firstAST)
-
-var secondAST = {
-  left: { license: 'MIT' },
-  conjunction: 'and',
-  right: {
-    left: {
-	  license: 'LGPL-2.1',
-	  plus: true },
-    conjunction: 'and',
-    right: { license: 'BSD-3-Clause' } } }
+  {
+    left: {license: 'LGPL-2.1'},
+    conjunction: 'or',
+    right: {
+      left: {license: 'BSD-3-Clause'},
+      conjunction: 'and',
+      right: {license: 'MIT'}
+    }
+  }
+)
 
 assert.deepEqual(
   parse('(MIT AND (LGPL-2.1+ AND BSD-3-Clause))'),
-  secondAST)
+  {
+    left: {license: 'MIT'},
+    conjunction: 'and',
+    right: {
+      left: {license: 'LGPL-2.1', plus: true},
+      conjunction: 'and',
+      right: {license: 'BSD-3-Clause'}
+    }
+  }
+)
 
 // We handle all the bare SPDX license and exception ids as well.
-require('spdx-license-ids').forEach(function(id) {
-  assert.deepEqual(
-    parse(id),
-    { license: id })
-  require('spdx-exceptions').forEach(function(e) {
+require('spdx-license-ids').forEach(function (id) {
+  assert.deepEqual(parse(id), {license: id})
+  require('spdx-exceptions').forEach(function (e) {
     assert.deepEqual(
       parse(id + ' WITH ' + e),
-      { license: id, exception: e }) }) })
+      {license: id, exception: e}
+    )
+  })
+})
 ```
 
 ---

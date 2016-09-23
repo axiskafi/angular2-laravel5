@@ -1,4 +1,4 @@
-/* global describe, it, xit, expect, require, beforeEach, afterEach */
+/* global describe, it, expect, require, beforeEach, afterEach */
 
 var runArrayTests = function (it) {
   'use strict';
@@ -8,11 +8,12 @@ var runArrayTests = function (it) {
     return typeof Sym === 'function' && typeof sym === 'symbol';
   };
   var functionsHaveNames = (function foo() {}).name === 'foo';
-  var ifFunctionsHaveNamesIt = functionsHaveNames ? it : xit;
-  var ifSymbolIteratorIt = isSymbol(Sym.iterator) ? it : xit;
-  var ifSymbolIteratorAndArrayValuesIt = isSymbol(Sym.iterator) && Array.prototype.values ? it : xit;
-  var ifSymbolUnscopablesIt = isSymbol(Sym.unscopables) ? it : xit;
+  var ifFunctionsHaveNamesIt = functionsHaveNames ? it : it.skip;
+  var ifSymbolIteratorIt = isSymbol(Sym.iterator) ? it : it.skip;
+  var ifSymbolIteratorAndArrayValuesIt = isSymbol(Sym.iterator) && Array.prototype.values ? it : it.skip;
+  var ifSymbolUnscopablesIt = isSymbol(Sym.unscopables) ? it : it.skip;
   var ifShimIt = (typeof process !== 'undefined' && process.env.NO_ES6_SHIM) ? it.skip : it;
+  var ifSupportsDescriptorsIt = Object.getOwnPropertyDescriptor ? it : it.skip;
 
   var isNegativeZero = function (x) {
     return (1 / x) < 0;
@@ -28,7 +29,8 @@ var runArrayTests = function (it) {
 
     describe('@@iterator', function () {
       ifSymbolIteratorIt('uses Symbol.iterator if available', function () {
-        var b = {}, c = {};
+        var b = {};
+        var c = {};
         var a = [b, c];
         var iteratorFn = a[Sym.iterator];
         var iterator = iteratorFn.call(a);
@@ -237,10 +239,12 @@ var runArrayTests = function (it) {
       it('removes holes', function () {
         /*jshint elision: true */
         /* jscs:disable disallowSpaceBeforeComma */
+        /* jscs:disable requireSpaceAfterComma */
         /* eslint-disable no-sparse-arrays */
         var input = [0, , 2];
         var result = Array.from([0, , 2]);
         /* eslint-enable no-sparse-arrays */
+        /* jscs:enable requireSpaceAfterComma */
         /* jscs:enable disallowSpaceBeforeComma */
         /*jshint elision: false */
         expect(1 in input).to.equal(false);
@@ -250,6 +254,22 @@ var runArrayTests = function (it) {
 
       it('works with this flaky example', function () {
         expect(Array.from([1, NaN, false])).to.eql([1, NaN, false]);
+      });
+
+      ifSupportsDescriptorsIt('works when Object.prototype has a throwing setter', function () {
+        var key = 10;
+        /* eslint no-extend-native: 0 */
+        Object.defineProperty(Object.prototype, key, {
+          configurable: true,
+          get: function () {},
+          set: function (v) { throw new EvalError('boom'); }
+        });
+        expect(function () { var arr = []; arr[key] = 42; }).to['throw'](EvalError); // assert thrower
+
+        expect(function () { Array.from({ length: key + 1 }); }).not.to['throw']();
+
+        delete Object.prototype[key];
+        expect(key in Object.prototype).to.equal(false); // assert cleanup
       });
     });
 
@@ -371,9 +391,11 @@ var runArrayTests = function (it) {
       it('should delete the target key if the source key is not present', function () {
         /* jshint elision: true */
         /* jscs:disable disallowSpaceBeforeComma */
+        /* jscs:disable requireSpaceAfterComma */
         /* eslint-disable no-sparse-arrays */
         expect([, 1, 2].copyWithin(1, 0)).to.eql([, , 1]);
         /* jshint elision: false */
+        /* jscs:enable requireSpaceAfterComma */
         /* jscs:enable disallowSpaceBeforeComma */
         /* eslint-enable no-sparse-arrays */
       });
@@ -457,9 +479,11 @@ var runArrayTests = function (it) {
       it('should work with a sparse array', function () {
         /*jshint elision: true */
         /* jscs:disable disallowSpaceBeforeComma */
+        /* jscs:disable requireSpaceAfterComma */
         /* eslint-disable no-sparse-arrays */
         var obj = [1, , undefined];
         /* eslint-enable no-sparse-arrays */
+        /* jscs:enable requireSpaceAfterComma */
         /* jscs:enable disallowSpaceBeforeComma */
         /*jshint elision: false */
         expect(1 in obj).to.equal(false);
@@ -554,9 +578,11 @@ var runArrayTests = function (it) {
       it('should work with a sparse array', function () {
         /*jshint elision: true */
         /* jscs:disable disallowSpaceBeforeComma */
+        /* jscs:disable requireSpaceAfterComma */
         /* eslint-disable no-sparse-arrays */
         var obj = [1, , undefined];
         /* eslint-enable no-sparse-arrays */
+        /* jscs:enable requireSpaceAfterComma */
         /* jscs:enable disallowSpaceBeforeComma */
         /*jshint elision: false */
         expect(1 in obj).to.equal(false);

@@ -1,7 +1,7 @@
-import {Scheduler} from '../Scheduler';
-import {Observable} from '../Observable';
-import {TeardownLogic} from '../Subscription';
-import {Subscriber} from '../Subscriber';
+import { Scheduler } from '../Scheduler';
+import { Observable } from '../Observable';
+import { TeardownLogic } from '../Subscription';
+import { Subscriber } from '../Subscriber';
 
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -57,7 +57,7 @@ export class RangeObservable extends Observable<number> {
 
     subscriber.next(start);
 
-    if (subscriber.isUnsubscribed) {
+    if (subscriber.closed) {
       return;
     }
 
@@ -97,7 +97,7 @@ export class RangeObservable extends Observable<number> {
           break;
         }
         subscriber.next(start++);
-        if (subscriber.isUnsubscribed) {
+        if (subscriber.closed) {
           break;
         }
       } while (true);

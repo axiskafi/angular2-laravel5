@@ -1,4 +1,10 @@
-"use strict";
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 function noNg() {
     throw new Error('AngularJS v1.x is not loaded!');
 }
@@ -17,10 +23,10 @@ try {
 }
 catch (e) {
 }
-exports.bootstrap = angular.bootstrap;
-exports.module = angular.module;
-exports.element = angular.element;
-exports.version = angular.version;
-exports.resumeBootstrap = angular.resumeBootstrap;
-exports.getTestability = angular.getTestability;
+export var bootstrap = angular.bootstrap;
+export var module = angular.module;
+export var element = angular.element;
+export var version = angular.version;
+export var resumeBootstrap = angular.resumeBootstrap;
+export var getTestability = angular.getTestability;
 //# sourceMappingURL=angular_js.js.map

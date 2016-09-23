@@ -1,9 +1,9 @@
-import { Type } from '../../src/facade/lang';
-import { SetterFn, GetterFn, MethodFn } from './types';
-import { ReflectorReader } from './reflector_reader';
+import { Type } from '../type';
 import { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
-export { SetterFn, GetterFn, MethodFn } from './types';
+import { ReflectorReader } from './reflector_reader';
+import { GetterFn, MethodFn, SetterFn } from './types';
 export { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
+export { GetterFn, MethodFn, SetterFn } from './types';
 /**
  * Reflective information about a symbol, including annotations, interfaces, and other metadata.
  */
@@ -24,18 +24,9 @@ export declare class ReflectionInfo {
  * to power dependency injection and compilation.
  */
 export declare class Reflector extends ReflectorReader {
-    /** @internal */
-    _injectableInfo: Map<any, ReflectionInfo>;
-    /** @internal */
-    _getters: Map<string, (obj: any) => any>;
-    /** @internal */
-    _setters: Map<string, (obj: any, value: any) => void>;
-    /** @internal */
-    _methods: Map<string, (obj: any, args: any[]) => any>;
-    /** @internal */
-    _usedKeys: Set<any>;
     reflectionCapabilities: PlatformReflectionCapabilities;
     constructor(reflectionCapabilities: PlatformReflectionCapabilities);
+    updateCapabilities(caps: PlatformReflectionCapabilities): void;
     isReflectionEnabled(): boolean;
     /**
      * Causes `this` reflector to track keys used to access
@@ -49,7 +40,7 @@ export declare class Reflector extends ReflectorReader {
      */
     listUnusedKeys(): any[];
     registerFunction(func: Function, funcInfo: ReflectionInfo): void;
-    registerType(type: Type, typeInfo: ReflectionInfo): void;
+    registerType(type: Type<any>, typeInfo: ReflectionInfo): void;
     registerGetters(getters: {
         [key: string]: GetterFn;
     }): void;
@@ -59,19 +50,18 @@ export declare class Reflector extends ReflectorReader {
     registerMethods(methods: {
         [key: string]: MethodFn;
     }): void;
-    factory(type: Type): Function;
-    parameters(typeOrFunc: any): any[][];
-    annotations(typeOrFunc: any): any[];
-    propMetadata(typeOrFunc: any): {
+    factory(type: Type<any>): Function;
+    parameters(typeOrFunc: Type<any>): any[][];
+    annotations(typeOrFunc: Type<any>): any[];
+    propMetadata(typeOrFunc: Type<any>): {
         [key: string]: any[];
     };
-    interfaces(type: Type): any[];
+    interfaces(type: Type<any>): any[];
+    hasLifecycleHook(type: any, lcInterface: Type<any>, lcProperty: string): boolean;
     getter(name: string): GetterFn;
     setter(name: string): SetterFn;
     method(name: string): MethodFn;
-    /** @internal */
-    _getReflectionInfo(typeOrFunc: any): ReflectionInfo;
-    /** @internal */
-    _containsReflectionInfo(typeOrFunc: any): boolean;
-    importUri(type: Type): string;
+    importUri(type: any): string;
+    resolveIdentifier(name: string, moduleUrl: string, runtime: any): any;
+    resolveEnum(identifier: any, name: string): any;
 }

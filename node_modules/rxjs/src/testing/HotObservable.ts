@@ -1,11 +1,11 @@
-import {Subject} from '../Subject';
-import {Subscriber} from '../Subscriber';
-import {Subscription, TeardownLogic} from '../Subscription';
-import {Scheduler} from '../Scheduler';
-import {TestMessage} from './TestMessage';
-import {SubscriptionLog} from './SubscriptionLog';
-import {SubscriptionLoggable} from './SubscriptionLoggable';
-import {applyMixins} from '../util/applyMixins';
+import { Subject } from '../Subject';
+import { Subscriber } from '../Subscriber';
+import { Subscription } from '../Subscription';
+import { Scheduler } from '../Scheduler';
+import { TestMessage } from './TestMessage';
+import { SubscriptionLog } from './SubscriptionLog';
+import { SubscriptionLoggable } from './SubscriptionLoggable';
+import { applyMixins } from '../util/applyMixins';
 
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -24,7 +24,7 @@ export class HotObservable<T> extends Subject<T> implements SubscriptionLoggable
     this.scheduler = scheduler;
   }
 
-  protected _subscribe(subscriber: Subscriber<any>): TeardownLogic {
+  protected _subscribe(subscriber: Subscriber<any>): Subscription {
     const subject: HotObservable<T> = this;
     const index = subject.logSubscribedFrame();
     subscriber.add(new Subscription(() => {
@@ -50,4 +50,3 @@ export class HotObservable<T> extends Subject<T> implements SubscriptionLoggable
   }
 }
 applyMixins(HotObservable, [SubscriptionLoggable]);
-

@@ -1,36 +1,49 @@
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../../src/facade/lang');
-var collection_1 = require('../../src/facade/collection');
-var ng_switch_1 = require('./ng_switch');
-var _CATEGORY_DEFAULT = 'other';
-var NgLocalization = (function () {
-    function NgLocalization() {
-    }
-    return NgLocalization;
-}());
-exports.NgLocalization = NgLocalization;
-var NgPluralCase = (function () {
-    function NgPluralCase(value, template, viewContainer) {
-        this.value = value;
-        this._view = new ng_switch_1.SwitchView(viewContainer, template);
-    }
-    NgPluralCase.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngPluralCase]' },] },
-    ];
-    NgPluralCase.ctorParameters = [
-        { type: undefined, decorators: [{ type: core_1.Attribute, args: ['ngPluralCase',] },] },
-        { type: core_1.TemplateRef, },
-        { type: core_1.ViewContainerRef, },
-    ];
-    return NgPluralCase;
-}());
-exports.NgPluralCase = NgPluralCase;
-var NgPlural = (function () {
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Attribute, Directive, Host, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { NgLocalization, getPluralCategory } from '../localization';
+import { SwitchView } from './ng_switch';
+/**
+ * @ngModule CommonModule
+ *
+ * @whatItDoes Adds / removes DOM sub-trees based on a numeric value. Tailored for pluralization.
+ *
+ * @howToUse
+ * ```
+ * <some-element [ngPlural]="value">
+ *   <ng-container *ngPluralCase="'=0'">there is nothing</ng-container>
+ *   <ng-container *ngPluralCase="'=1'">there is one</ng-container>
+ *   <ng-container *ngPluralCase="'few'">there are a few</ng-container>
+ *   <ng-container *ngPluralCase="'other'">there are exactly #</ng-container>
+ * </some-element>
+ * ```
+ *
+ * @description
+ *
+ * Displays DOM sub-trees that match the switch expression value, or failing that, DOM sub-trees
+ * that match the switch expression's pluralization category.
+ *
+ * To use this directive you must provide a container element that sets the `[ngPlural]` attribute
+ * to a switch expression. Inner elements with a `[ngPluralCase]` will display based on their
+ * expression:
+ * - if `[ngPluralCase]` is set to a value starting with `=`, it will only display if the value
+ *   matches the switch expression exactly,
+ * - otherwise, the view will be treated as a "category match", and will only display if exact
+ *   value matches aren't found and the value maps to its category for the defined locale.
+ *
+ * See http://cldr.unicode.org/index/cldr-spec/plural-rules
+ *
+ * @experimental
+ */
+export var NgPlural = (function () {
     function NgPlural(_localization) {
         this._localization = _localization;
-        this._caseViews = new collection_1.Map();
-        this.cases = null;
+        this._caseViews = {};
     }
     Object.defineProperty(NgPlural.prototype, "ngPlural", {
         set: function (value) {
@@ -40,58 +53,69 @@ var NgPlural = (function () {
         enumerable: true,
         configurable: true
     });
-    NgPlural.prototype.ngAfterContentInit = function () {
-        var _this = this;
-        this.cases.forEach(function (pluralCase) {
-            _this._caseViews.set(_this._formatValue(pluralCase), pluralCase._view);
-        });
-        this._updateView();
-    };
+    NgPlural.prototype.addCase = function (value, switchView) { this._caseViews[value] = switchView; };
     /** @internal */
     NgPlural.prototype._updateView = function () {
         this._clearViews();
-        var view = this._caseViews.get(this._switchValue);
-        if (!lang_1.isPresent(view))
-            view = this._getCategoryView(this._switchValue);
-        this._activateView(view);
+        var cases = Object.keys(this._caseViews);
+        var key = getPluralCategory(this._switchValue, cases, this._localization);
+        this._activateView(this._caseViews[key]);
     };
     /** @internal */
     NgPlural.prototype._clearViews = function () {
-        if (lang_1.isPresent(this._activeView))
+        if (this._activeView)
             this._activeView.destroy();
     };
     /** @internal */
     NgPlural.prototype._activateView = function (view) {
-        if (!lang_1.isPresent(view))
-            return;
-        this._activeView = view;
-        this._activeView.create();
+        if (view) {
+            this._activeView = view;
+            this._activeView.create();
+        }
     };
-    /** @internal */
-    NgPlural.prototype._getCategoryView = function (value) {
-        var category = this._localization.getPluralCategory(value);
-        var categoryView = this._caseViews.get(category);
-        return lang_1.isPresent(categoryView) ? categoryView : this._caseViews.get(_CATEGORY_DEFAULT);
-    };
-    /** @internal */
-    NgPlural.prototype._isValueView = function (pluralCase) { return pluralCase.value[0] === "="; };
-    /** @internal */
-    NgPlural.prototype._formatValue = function (pluralCase) {
-        return this._isValueView(pluralCase) ? this._stripValue(pluralCase.value) : pluralCase.value;
-    };
-    /** @internal */
-    NgPlural.prototype._stripValue = function (value) { return lang_1.NumberWrapper.parseInt(value.substring(1), 10); };
     NgPlural.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngPlural]' },] },
+        { type: Directive, args: [{ selector: '[ngPlural]' },] },
     ];
+    /** @nocollapse */
     NgPlural.ctorParameters = [
         { type: NgLocalization, },
     ];
     NgPlural.propDecorators = {
-        'cases': [{ type: core_1.ContentChildren, args: [NgPluralCase,] },],
-        'ngPlural': [{ type: core_1.Input },],
+        'ngPlural': [{ type: Input },],
     };
     return NgPlural;
 }());
-exports.NgPlural = NgPlural;
+/**
+ * @ngModule CommonModule
+ *
+ * @whatItDoes Creates a view that will be added/removed from the parent {@link NgPlural} when the
+ *             given expression matches the plural expression according to CLDR rules.
+ *
+ * @howToUse
+ *     <some-element [ngPlural]="value">
+ *       <ng-container *ngPluralCase="'=0'">...</ng-container>
+ *       <ng-container *ngPluralCase="'other'">...</ng-container>
+ *     </some-element>
+ *
+ * See {@link NgPlural} for more details and example.
+ *
+ * @experimental
+ */
+export var NgPluralCase = (function () {
+    function NgPluralCase(value, template, viewContainer, ngPlural) {
+        this.value = value;
+        ngPlural.addCase(value, new SwitchView(viewContainer, template));
+    }
+    NgPluralCase.decorators = [
+        { type: Directive, args: [{ selector: '[ngPluralCase]' },] },
+    ];
+    /** @nocollapse */
+    NgPluralCase.ctorParameters = [
+        { type: undefined, decorators: [{ type: Attribute, args: ['ngPluralCase',] },] },
+        { type: TemplateRef, },
+        { type: ViewContainerRef, },
+        { type: NgPlural, decorators: [{ type: Host },] },
+    ];
+    return NgPluralCase;
+}());
 //# sourceMappingURL=ng_plural.js.map

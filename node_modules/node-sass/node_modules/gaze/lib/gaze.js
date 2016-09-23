@@ -262,8 +262,8 @@ Gaze.prototype._addToWatched = function (files) {
     dirname = helper.markDir(dirname);
 
     // If a new dir is added
-    if (helper.isDir(file) && !(filepath in this._watched)) {
-      helper.objectPush(this._watched, filepath, []);
+    if (helper.isDir(file) && !(dirname in this._watched)) {
+      helper.objectPush(this._watched, dirname, []);
     }
 
     if (file.slice(-1) === '/') { filepath += path.sep; }
@@ -296,6 +296,10 @@ Gaze.prototype._watchDir = function (dir, done) {
           done(null, dir);
         }
       }, delay + 100);
+    });
+
+    this._watchers[dir].on('error', function (err) {
+      self._handleError(err);
     });
   } catch (err) {
     return this._handleError(err);

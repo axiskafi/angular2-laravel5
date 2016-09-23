@@ -1,8 +1,14 @@
-"use strict";
-var lang_1 = require('../../src/facade/lang');
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { global, isFunction, stringify } from '../facade/lang';
 var _nextClassId = 0;
 function extractAnnotation(annotation) {
-    if (lang_1.isFunction(annotation) && annotation.hasOwnProperty('annotation')) {
+    if (isFunction(annotation) && annotation.hasOwnProperty('annotation')) {
         // it is a decorator, extract annotation
         annotation = annotation.annotation;
     }
@@ -11,20 +17,20 @@ function extractAnnotation(annotation) {
 function applyParams(fnOrArray, key) {
     if (fnOrArray === Object || fnOrArray === String || fnOrArray === Function ||
         fnOrArray === Number || fnOrArray === Array) {
-        throw new Error("Can not use native " + lang_1.stringify(fnOrArray) + " as constructor");
+        throw new Error("Can not use native " + stringify(fnOrArray) + " as constructor");
     }
-    if (lang_1.isFunction(fnOrArray)) {
+    if (isFunction(fnOrArray)) {
         return fnOrArray;
     }
     else if (fnOrArray instanceof Array) {
         var annotations = fnOrArray;
-        var fn = fnOrArray[fnOrArray.length - 1];
-        if (!lang_1.isFunction(fn)) {
-            throw new Error("Last position of Class method array must be Function in key " + key + " was '" + lang_1.stringify(fn) + "'");
-        }
         var annoLength = annotations.length - 1;
+        var fn = fnOrArray[annoLength];
+        if (!isFunction(fn)) {
+            throw new Error("Last position of Class method array must be Function in key " + key + " was '" + stringify(fn) + "'");
+        }
         if (annoLength != fn.length) {
-            throw new Error("Number of annotations (" + annoLength + ") does not match number of arguments (" + fn.length + ") in the function: " + lang_1.stringify(fn));
+            throw new Error("Number of annotations (" + annoLength + ") does not match number of arguments (" + fn.length + ") in the function: " + stringify(fn));
         }
         var paramsAnnotations = [];
         for (var i = 0, ii = annotations.length - 1; i < ii; i++) {
@@ -36,7 +42,7 @@ function applyParams(fnOrArray, key) {
                     paramAnnotations.push(extractAnnotation(annotation[j]));
                 }
             }
-            else if (lang_1.isFunction(annotation)) {
+            else if (isFunction(annotation)) {
                 paramAnnotations.push(extractAnnotation(annotation));
             }
             else {
@@ -47,7 +53,7 @@ function applyParams(fnOrArray, key) {
         return fn;
     }
     else {
-        throw new Error("Only Function or Array is supported in Class definition for key '" + key + "' is '" + lang_1.stringify(fnOrArray) + "'");
+        throw new Error("Only Function or Array is supported in Class definition for key '" + key + "' is '" + stringify(fnOrArray) + "'");
     }
 }
 /**
@@ -130,17 +136,18 @@ function applyParams(fnOrArray, key) {
  *   }
  * });
  * ```
+ * @stable
  */
-function Class(clsDef) {
+export function Class(clsDef) {
     var constructor = applyParams(clsDef.hasOwnProperty('constructor') ? clsDef.constructor : undefined, 'constructor');
     var proto = constructor.prototype;
     if (clsDef.hasOwnProperty('extends')) {
-        if (lang_1.isFunction(clsDef.extends)) {
+        if (isFunction(clsDef.extends)) {
             constructor.prototype = proto =
                 Object.create(clsDef.extends.prototype);
         }
         else {
-            throw new Error("Class definition 'extends' property must be a constructor function was: " + lang_1.stringify(clsDef.extends));
+            throw new Error("Class definition 'extends' property must be a constructor function was: " + stringify(clsDef.extends));
         }
     }
     for (var key in clsDef) {
@@ -151,34 +158,31 @@ function Class(clsDef) {
     if (this && this.annotations instanceof Array) {
         Reflect.defineMetadata('annotations', this.annotations, constructor);
     }
-    if (!constructor['name']) {
+    var constructorName = constructor['name'];
+    if (!constructorName || constructorName === 'constructor') {
         constructor['overriddenName'] = "class" + _nextClassId++;
     }
     return constructor;
 }
-exports.Class = Class;
-var Reflect = lang_1.global.Reflect;
-// Throw statement at top-level is disallowed by closure compiler in ES6 input.
-// Wrap in an IIFE as a work-around.
-(function checkReflect() {
-    if (!(Reflect && Reflect.getMetadata)) {
-        throw 'reflect-metadata shim is required when using class decorators';
-    }
-})();
-function makeDecorator(annotationCls, chainFn) {
+var Reflect = global.Reflect;
+export function makeDecorator(name, props, parentClass, chainFn) {
     if (chainFn === void 0) { chainFn = null; }
+    var metaCtor = makeMetadataCtor([props]);
     function DecoratorFactory(objOrType) {
-        var annotationInstance = new annotationCls(objOrType);
-        if (this instanceof annotationCls) {
-            return annotationInstance;
+        if (!(Reflect && Reflect.getMetadata)) {
+            throw 'reflect-metadata shim is required when using class decorators';
+        }
+        if (this instanceof DecoratorFactory) {
+            metaCtor.call(this, objOrType);
+            return this;
         }
         else {
-            var chainAnnotation = lang_1.isFunction(this) && this.annotations instanceof Array ? this.annotations : [];
-            chainAnnotation.push(annotationInstance);
+            var annotationInstance_1 = new DecoratorFactory(objOrType);
+            var chainAnnotation = isFunction(this) && this.annotations instanceof Array ? this.annotations : [];
+            chainAnnotation.push(annotationInstance_1);
             var TypeDecorator = function TypeDecorator(cls) {
-                var annotations = Reflect.getOwnMetadata('annotations', cls);
-                annotations = annotations || [];
-                annotations.push(annotationInstance);
+                var annotations = Reflect.getOwnMetadata('annotations', cls) || [];
+                annotations.push(annotationInstance_1);
                 Reflect.defineMetadata('annotations', annotations, cls);
                 return cls;
             };
@@ -189,29 +193,53 @@ function makeDecorator(annotationCls, chainFn) {
             return TypeDecorator;
         }
     }
-    DecoratorFactory.prototype = Object.create(annotationCls.prototype);
-    DecoratorFactory.annotationCls = annotationCls;
+    if (parentClass) {
+        DecoratorFactory.prototype = Object.create(parentClass.prototype);
+    }
+    DecoratorFactory.prototype.toString = function () { return ("@" + name); };
+    DecoratorFactory.annotationCls = DecoratorFactory;
     return DecoratorFactory;
 }
-exports.makeDecorator = makeDecorator;
-function makeParamDecorator(annotationCls) {
+function makeMetadataCtor(props) {
+    function ctor() {
+        var _this = this;
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
+        props.forEach(function (prop, i) {
+            var argVal = args[i];
+            if (Array.isArray(prop)) {
+                // plain parameter
+                var val = !argVal || argVal === undefined ? prop[1] : argVal;
+                _this[prop[0]] = val;
+            }
+            else {
+                for (var propName in prop) {
+                    var val = !argVal || argVal[propName] === undefined ? prop[propName] : argVal[propName];
+                    _this[propName] = val;
+                }
+            }
+        });
+    }
+    return ctor;
+}
+export function makeParamDecorator(name, props, parentClass) {
+    var metaCtor = makeMetadataCtor(props);
     function ParamDecoratorFactory() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i - 0] = arguments[_i];
         }
-        var annotationInstance = Object.create(annotationCls.prototype);
-        annotationCls.apply(annotationInstance, args);
-        if (this instanceof annotationCls) {
-            return annotationInstance;
+        if (this instanceof ParamDecoratorFactory) {
+            metaCtor.apply(this, args);
+            return this;
         }
-        else {
-            ParamDecorator.annotation = annotationInstance;
-            return ParamDecorator;
-        }
+        var annotationInstance = new ((_a = ParamDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
+        ParamDecorator.annotation = annotationInstance;
+        return ParamDecorator;
         function ParamDecorator(cls, unusedKey, index) {
-            var parameters = Reflect.getMetadata('parameters', cls);
-            parameters = parameters || [];
+            var parameters = Reflect.getMetadata('parameters', cls) || [];
             // there might be gaps if some in between parameters do not have annotations.
             // we pad with nulls.
             while (parameters.length <= index) {
@@ -223,36 +251,42 @@ function makeParamDecorator(annotationCls) {
             Reflect.defineMetadata('parameters', parameters, cls);
             return cls;
         }
+        var _a;
     }
-    ParamDecoratorFactory.prototype = Object.create(annotationCls.prototype);
-    ParamDecoratorFactory.annotationCls = annotationCls;
+    if (parentClass) {
+        ParamDecoratorFactory.prototype = Object.create(parentClass.prototype);
+    }
+    ParamDecoratorFactory.prototype.toString = function () { return ("@" + name); };
+    ParamDecoratorFactory.annotationCls = ParamDecoratorFactory;
     return ParamDecoratorFactory;
 }
-exports.makeParamDecorator = makeParamDecorator;
-function makePropDecorator(annotationCls) {
+export function makePropDecorator(name, props, parentClass) {
+    var metaCtor = makeMetadataCtor(props);
     function PropDecoratorFactory() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i - 0] = arguments[_i];
         }
-        var decoratorInstance = Object.create(annotationCls.prototype);
-        annotationCls.apply(decoratorInstance, args);
-        if (this instanceof annotationCls) {
-            return decoratorInstance;
+        if (this instanceof PropDecoratorFactory) {
+            metaCtor.apply(this, args);
+            return this;
         }
         else {
+            var decoratorInstance = new ((_a = PropDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
             return function PropDecorator(target, name) {
-                var meta = Reflect.getOwnMetadata('propMetadata', target.constructor);
-                meta = meta || {};
+                var meta = Reflect.getOwnMetadata('propMetadata', target.constructor) || {};
                 meta[name] = meta[name] || [];
                 meta[name].unshift(decoratorInstance);
                 Reflect.defineMetadata('propMetadata', meta, target.constructor);
             };
         }
+        var _a;
     }
-    PropDecoratorFactory.prototype = Object.create(annotationCls.prototype);
-    PropDecoratorFactory.annotationCls = annotationCls;
+    if (parentClass) {
+        PropDecoratorFactory.prototype = Object.create(parentClass.prototype);
+    }
+    PropDecoratorFactory.prototype.toString = function () { return ("@" + name); };
+    PropDecoratorFactory.annotationCls = PropDecoratorFactory;
     return PropDecoratorFactory;
 }
-exports.makePropDecorator = makePropDecorator;
 //# sourceMappingURL=decorators.js.map
